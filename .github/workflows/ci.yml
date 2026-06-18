@@ -44,6 +44,6 @@ jobs:
           SONAR_HOST_URL: https://sonarcloud.io
         with:
           args: >
-            -Dsonar.organization=CityOpz
+            -Dsonar.organization=cityopz
             -Dsonar.projectKey=cityopz
             -Dsonar.qualitygate.wait=true
