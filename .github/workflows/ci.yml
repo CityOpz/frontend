@@ -45,5 +45,5 @@ jobs:
         with:
           args: >
             -Dsonar.organization=cityopz
-            -Dsonar.projectKey=cityopz
+            -Dsonar.projectKey=CityOpz_frontend
             -Dsonar.qualitygate.wait=true
