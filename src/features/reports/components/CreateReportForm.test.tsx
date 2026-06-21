@@ -29,8 +29,12 @@ describe("CreateReportForm", () => {
     fireEvent.change(screen.getByLabelText("Descripción"), {
       target: { value: "El semáforo no funciona desde esta mañana." },
     })
+    fireEvent.change(screen.getByLabelText("Categoría"), {
+      target: { value: "Movilidad" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Crear reporte" }))
 
+    expect(screen.getByLabelText("Categoría")).toHaveValue("Movilidad")
     expect(screen.getByRole("status")).toHaveTextContent(
       "Reporte creado correctamente",
     )
@@ -66,5 +70,42 @@ describe("CreateReportForm", () => {
       )
     })
     expect(getCurrentPosition).toHaveBeenCalledOnce()
+  })
+
+  it("muestra un error si el navegador no ofrece geolocalización", () => {
+    render(<CreateReportForm />)
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Obtener mi ubicación" }),
+    )
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "La geolocalización no está disponible",
+    )
+  })
+
+  it("muestra un error si no puede obtener la ubicación", async () => {
+    const getCurrentPosition = vi.fn(
+      (_success: PositionCallback, error: PositionErrorCallback) => {
+        error({ code: 1, message: "Permission denied", PERMISSION_DENIED: 1 } as GeolocationPositionError)
+      },
+    )
+
+    Object.defineProperty(window.navigator, "geolocation", {
+      configurable: true,
+      value: { getCurrentPosition },
+    })
+
+    render(<CreateReportForm />)
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Obtener mi ubicación" }),
+    )
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "No fue posible obtener tu ubicación",
+      )
+    })
   })
 })
