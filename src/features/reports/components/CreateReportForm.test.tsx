@@ -4,7 +4,7 @@ import { CreateReportForm } from "./CreateReportForm"
 
 describe("CreateReportForm", () => {
   beforeEach(() => {
-    Object.defineProperty(window.navigator, "geolocation", {
+    Object.defineProperty(globalThis.navigator, "geolocation", {
       configurable: true,
       value: undefined,
     })
@@ -50,7 +50,7 @@ describe("CreateReportForm", () => {
       } as GeolocationPosition)
     })
 
-    Object.defineProperty(window.navigator, "geolocation", {
+    Object.defineProperty(globalThis.navigator, "geolocation", {
       configurable: true,
       value: { getCurrentPosition },
     })
@@ -91,7 +91,7 @@ describe("CreateReportForm", () => {
       },
     )
 
-    Object.defineProperty(window.navigator, "geolocation", {
+    Object.defineProperty(globalThis.navigator, "geolocation", {
       configurable: true,
       value: { getCurrentPosition },
     })

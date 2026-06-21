@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react"
+import { useState, type SubmitEventHandler } from "react"
 import { CheckCircle2, FileText, LoaderCircle, LocateFixed, Send } from "lucide-react"
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
@@ -83,7 +83,7 @@ export function CreateReportForm() {
     )
   }
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault()
 
     const validationErrors: ReportFormErrors = {
@@ -198,9 +198,8 @@ export function CreateReportForm() {
       </div>
 
       {isSubmitted && (
-        <div
+        <output
           className="flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-700 dark:text-emerald-300"
-          role="status"
         >
           <CheckCircle2 className="mt-0.5 size-5 shrink-0" />
           <div>
@@ -209,7 +208,7 @@ export function CreateReportForm() {
               El envío es local mientras se completa la integración con el backend.
             </p>
           </div>
-        </div>
+        </output>
       )}
 
       <Button fullWidth leftIcon={<Send />} size="lg" type="submit">
