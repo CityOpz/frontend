@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 import { ReportsTable } from "./ReportsTable"
 import type { Report } from "../types/report.types"
+import { mockReports } from "../data/reports.mock"
 
 const pendingReport: Report = {
   id: "REP-TEST",
@@ -12,6 +13,15 @@ const pendingReport: Report = {
 }
 
 describe("ReportsTable", () => {
+  it("renderiza los reportes mock y muestra el estado Pendiente", () => {
+    render(
+      <ReportsTable reports={mockReports} onStatusChange={vi.fn()} />,
+    )
+
+    expect(screen.getByText("REP-001")).toBeInTheDocument()
+    expect(screen.getAllByText("Pendiente").length).toBeGreaterThan(0)
+  })
+
   it("permite seleccionar únicamente el siguiente estado", () => {
     const onStatusChange = vi.fn()
 
