@@ -55,7 +55,6 @@ export default function ThemeToggle() {
         focus-visible:ring-ring
       "
     >
-      {/* Sun */}
       <Sun className={`
         absolute
         h-5
@@ -70,7 +69,6 @@ export default function ThemeToggle() {
         }
       `} />
 
-      {/* Moon */}
       <Moon className={`
         absolute
         h-5

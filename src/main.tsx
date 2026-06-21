@@ -1,15 +1,16 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import ThemeProvider from './shared/theme/providers/ThemeProvider.tsx'
-import { router } from './app/routes'
-import { RouterProvider } from 'react-router'
+import { StrictMode } from "react"
+import { createRoot } from "react-dom/client"
+import { RouterProvider } from "react-router"
+import ThemeProvider from "./shared/theme/providers/ThemeProvider"
+import { router } from "./app/routes"
 
-import './app/index.css'
+import "./shared/lib/api/authInterceptor"
+import "./app/index.css"
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
-      <RouterProvider router={router} />
+        <RouterProvider router={router} />
     </ThemeProvider>
-  </StrictMode>,
+  </StrictMode>
 )
