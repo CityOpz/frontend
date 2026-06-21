@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { renderHook, act } from "@testing-library/react"
+import type { AxiosResponse, AxiosError } from "axios"
 import { useLoginForm } from "./useLoginForm"
 import { authService } from "../services/auth.service"
 import { useAuthStore } from "../store/auth.store"
@@ -9,6 +10,16 @@ vi.mock("../services/auth.service", () => ({
     login: vi.fn(),
   },
 }))
+
+interface LoginResponse {
+  access: string
+  refresh: string
+}
+
+interface ErrorResponse {
+  detail?: string
+  message?: string
+}
 
 describe("useLoginForm", () => {
   beforeEach(() => {
@@ -42,8 +53,10 @@ describe("useLoginForm", () => {
   it("submit falla si faltan campos", async () => {
     const { result } = renderHook(() => useLoginForm())
     
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as React.FormEvent
+    
     await act(async () => {
-      await result.current.submit({ preventDefault: vi.fn() } as any)
+      await result.current.submit(fakeEvent)
     })
     
     expect(result.current.error).toBe("Please fill in all fields")
@@ -51,9 +64,11 @@ describe("useLoginForm", () => {
 
   it("submit exitoso guarda tokens", async () => {
     const mockLogin = vi.mocked(authService.login)
-    mockLogin.mockResolvedValue({
+    const mockResponse = {
       data: { access: "access123", refresh: "refresh456" },
-    } as any)
+    } as AxiosResponse<LoginResponse>
+    
+    mockLogin.mockResolvedValue(mockResponse)
 
     const { result } = renderHook(() => useLoginForm())
     
@@ -62,15 +77,16 @@ describe("useLoginForm", () => {
       result.current.update("password")("password123")
     })
 
-    // Mock window.location
     const originalLocation = globalThis.location
     Object.defineProperty(globalThis, "location", {
       value: { href: "" },
       writable: true,
     })
 
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as React.FormEvent
+    
     await act(async () => {
-      await result.current.submit({ preventDefault: vi.fn() } as any)
+      await result.current.submit(fakeEvent)
     })
 
     expect(mockLogin).toHaveBeenCalledWith({
@@ -81,7 +97,6 @@ describe("useLoginForm", () => {
     expect(useAuthStore.getState().access).toBe("access123")
     expect(useAuthStore.getState().isAuthenticated).toBe(true)
 
-    // Restaurar location
     Object.defineProperty(globalThis, "location", {
       value: originalLocation,
       writable: true,
@@ -90,9 +105,11 @@ describe("useLoginForm", () => {
 
   it("submit con error muestra mensaje", async () => {
     const mockLogin = vi.mocked(authService.login)
-    mockLogin.mockRejectedValue({
+    const mockError = {
       response: { data: { detail: "Invalid credentials" } },
-    })
+    } as AxiosError<ErrorResponse>
+    
+    mockLogin.mockRejectedValue(mockError)
 
     const { result } = renderHook(() => useLoginForm())
     
@@ -101,8 +118,10 @@ describe("useLoginForm", () => {
       result.current.update("password")("wrongpass")
     })
 
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as React.FormEvent
+    
     await act(async () => {
-      await result.current.submit({ preventDefault: vi.fn() } as any)
+      await result.current.submit(fakeEvent)
     })
 
     expect(result.current.error).toBe("Invalid credentials")

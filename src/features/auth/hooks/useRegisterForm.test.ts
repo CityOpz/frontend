@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { renderHook, act } from "@testing-library/react"
+import type { AxiosResponse, AxiosError } from "axios"
 import { useRegisterForm } from "./useRegisterForm"
 import { authService } from "../services/auth.service"
 import { useAuthStore } from "../store/auth.store"
@@ -10,6 +11,17 @@ vi.mock("../services/auth.service", () => ({
     login: vi.fn(),
   },
 }))
+
+interface LoginResponse {
+  access: string
+  refresh: string
+}
+
+interface RegisterErrorResponse {
+  username?: string[]
+  email?: string[]
+  [key: string]: string[] | undefined
+}
 
 describe("useRegisterForm", () => {
   beforeEach(() => {
@@ -33,8 +45,10 @@ describe("useRegisterForm", () => {
   it("submit falla si no acepta términos", async () => {
     const { result } = renderHook(() => useRegisterForm())
     
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as React.FormEvent
+    
     await act(async () => {
-      await result.current.submit({ preventDefault: vi.fn() } as any)
+      await result.current.submit(fakeEvent)
     })
     
     expect(result.current.termsError).toBe("You must accept the terms and conditions")
@@ -45,11 +59,13 @@ describe("useRegisterForm", () => {
     
     await act(async () => {
       result.current.update("acceptTerms")(true)
-      result.current.update("firstName")("") // Campo vacío
+      result.current.update("firstName")("")
     })
 
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as React.FormEvent
+    
     await act(async () => {
-      await result.current.submit({ preventDefault: vi.fn() } as any)
+      await result.current.submit(fakeEvent)
     })
     
     expect(result.current.errors.firstName).toBeDefined()
@@ -59,10 +75,13 @@ describe("useRegisterForm", () => {
     const mockRegister = vi.mocked(authService.register)
     const mockLogin = vi.mocked(authService.login)
     
-    mockRegister.mockResolvedValue({} as any)
-    mockLogin.mockResolvedValue({
+    const registerResponse = {} as AxiosResponse<void>
+    const loginResponse = {
       data: { access: "access123", refresh: "refresh456" },
-    } as any)
+    } as AxiosResponse<LoginResponse>
+    
+    mockRegister.mockResolvedValue(registerResponse)
+    mockLogin.mockResolvedValue(loginResponse)
 
     const { result } = renderHook(() => useRegisterForm())
     
@@ -76,22 +95,22 @@ describe("useRegisterForm", () => {
       result.current.update("acceptTerms")(true)
     })
 
-    // Mock window.location
     const originalLocation = globalThis.location
     Object.defineProperty(globalThis, "location", {
       value: { href: "" },
       writable: true,
     })
 
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as React.FormEvent
+    
     await act(async () => {
-      await result.current.submit({ preventDefault: vi.fn() } as any)
+      await result.current.submit(fakeEvent)
     })
 
     expect(mockRegister).toHaveBeenCalled()
     expect(mockLogin).toHaveBeenCalled()
     expect(useAuthStore.getState().access).toBe("access123")
 
-    // Restaurar location
     Object.defineProperty(globalThis, "location", {
       value: originalLocation,
       writable: true,
@@ -100,14 +119,16 @@ describe("useRegisterForm", () => {
 
   it("submit con error del backend mapea errores a campos", async () => {
     const mockRegister = vi.mocked(authService.register)
-    mockRegister.mockRejectedValue({
+    const mockError = {
       response: {
         data: {
           username: ["A user with that username already exists."],
           email: ["This field must be unique."],
         },
       },
-    })
+    } as AxiosError<RegisterErrorResponse>
+    
+    mockRegister.mockRejectedValue(mockError)
 
     const { result } = renderHook(() => useRegisterForm())
     
@@ -121,8 +142,10 @@ describe("useRegisterForm", () => {
       result.current.update("acceptTerms")(true)
     })
 
+    const fakeEvent = { preventDefault: vi.fn() } as unknown as React.FormEvent
+    
     await act(async () => {
-      await result.current.submit({ preventDefault: vi.fn() } as any)
+      await result.current.submit(fakeEvent)
     })
 
     expect(result.current.errors.username).toBe("A user with that username already exists.")
