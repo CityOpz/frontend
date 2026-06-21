@@ -9,9 +9,14 @@ import {
   TableRow,
 } from "@/shared/components/ui/table"
 import type { Report, ReportStatus } from "../types/report.types"
+import {
+  canTransitionReportStatus,
+  REPORT_STATUSES,
+} from "../utils/report-status"
 
 interface ReportsTableProps {
-  reports: Report[]
+  readonly reports: readonly Report[]
+  readonly onStatusChange: (reportId: string, status: ReportStatus) => void
 }
 
 const statusStyles: Record<ReportStatus, string> = {
@@ -25,7 +30,7 @@ const coordinateFormatter = new Intl.NumberFormat("es-CO", {
   maximumFractionDigits: 4,
 })
 
-export function ReportsTable({ reports }: ReportsTableProps) {
+export function ReportsTable({ reports, onStatusChange }: ReportsTableProps) {
   return (
     <Table aria-label="Listado de reportes ciudadanos">
       <TableHeader>
@@ -50,9 +55,34 @@ export function ReportsTable({ reports }: ReportsTableProps) {
               {report.category}
             </TableCell>
             <TableCell>
-              <Badge className={statusStyles[report.status]}>
-                {report.status}
-              </Badge>
+              <div className="flex min-w-44 flex-col items-start gap-2">
+                <Badge className={statusStyles[report.status]}>
+                  {report.status}
+                </Badge>
+                <select
+                  aria-label={`Cambiar estado del reporte ${report.id}`}
+                  className="h-9 w-full cursor-pointer rounded-lg border border-input bg-background px-3 text-xs font-medium text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
+                  disabled={report.status === "Resuelto"}
+                  value={report.status}
+                  onChange={(event) => {
+                    const nextStatus = event.target.value as ReportStatus
+
+                    if (canTransitionReportStatus(report.status, nextStatus)) {
+                      onStatusChange(report.id, nextStatus)
+                    }
+                  }}
+                >
+                  {REPORT_STATUSES.map((status) => (
+                    <option
+                      key={status}
+                      disabled={!canTransitionReportStatus(report.status, status)}
+                      value={status}
+                    >
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </TableCell>
             <TableCell>
               <span className="inline-flex items-center gap-2 font-mono text-xs text-muted-foreground">

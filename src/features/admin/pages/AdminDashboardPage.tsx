@@ -9,6 +9,7 @@ import {
   Settings,
   Users,
 } from "lucide-react"
+import { useState } from "react"
 import useDocumentTitle from "@/shared/hooks/useDocumentTitle"
 import { Badge } from "@/shared/components/ui/badge"
 import { Button } from "@/shared/components/ui/button"
@@ -16,6 +17,8 @@ import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
 import ThemeToggle from "@/shared/theme/components/ThemeToggle"
 import { mockReports } from "../data/reports.mock"
 import { ReportsTable } from "../components/ReportsTable"
+import type { ReportStatus } from "../types/report.types"
+import { canTransitionReportStatus } from "../utils/report-status"
 
 const navItems = [
   { label: "Resumen", icon: LayoutDashboard },
@@ -27,10 +30,22 @@ const navItems = [
 
 export default function AdminDashboardPage() {
   useDocumentTitle("Dashboard administrativo")
+  const [reports, setReports] = useState(() => mockReports)
 
-  const pendingReports = mockReports.filter(
+  const pendingReports = reports.filter(
     (report) => report.status === "Pendiente",
   ).length
+
+  const handleStatusChange = (reportId: string, nextStatus: ReportStatus) => {
+    setReports((currentReports) =>
+      currentReports.map((report) =>
+        report.id === reportId &&
+        canTransitionReportStatus(report.status, nextStatus)
+          ? { ...report, status: nextStatus }
+          : report,
+      ),
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -128,7 +143,7 @@ export default function AdminDashboardPage() {
                   Todos los reportes
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {mockReports.length} reportes registrados
+                  {reports.length} reportes registrados
                 </p>
               </div>
               <Badge variant="outline" className="border-border text-muted-foreground">
@@ -136,7 +151,10 @@ export default function AdminDashboardPage() {
               </Badge>
             </CardHeader>
             <CardContent className="p-0">
-              <ReportsTable reports={mockReports} />
+              <ReportsTable
+                reports={reports}
+                onStatusChange={handleStatusChange}
+              />
             </CardContent>
           </Card>
         </main>
