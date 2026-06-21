@@ -46,7 +46,7 @@ export function useLoginForm() {
       const { access, refresh } = res.data
       setTokens(access, refresh)
 
-      window.location.href = "/dashboard"
+      globalThis.location.href = "/dashboard"
     } catch (err) {
       const error = err as AxiosError<ApiError>
 

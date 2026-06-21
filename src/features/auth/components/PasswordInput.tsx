@@ -8,7 +8,7 @@ export function PasswordInput({
   onFocus,
   onBlur,
   ...props
-}: PasswordInputProps) {
+}: Readonly<PasswordInputProps>) {
   const [show, setShow] = useState(false)
 
   return (

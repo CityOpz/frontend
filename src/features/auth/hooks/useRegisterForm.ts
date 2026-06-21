@@ -71,7 +71,7 @@ export function useRegisterForm() {
         result = { valid: true }
     }
 
-    if (!result.valid) {
+    if (result.valid === false) {
       setErrors((prev) => ({ ...prev, [field]: result.error }))
     } else {
       setErrors((prev) => ({ ...prev, [field]: undefined }))
@@ -94,7 +94,7 @@ export function useRegisterForm() {
 
     for (const [field, value] of checks) {
       const result = validateField(field, value)
-      if (!result) isValid = false
+      if (result === false) isValid = false // ✅ Sin negación
     }
 
     return isValid
@@ -130,7 +130,7 @@ export function useRegisterForm() {
 
       setTokens(access, refresh)
 
-      window.location.href = "/dashboard"
+      globalThis.location.href = "/dashboard" // ✅ globalThis
     } catch (err) {
       const error = err as AxiosError<BackendError>
       const backendErrors = error.response?.data

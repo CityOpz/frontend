@@ -64,7 +64,7 @@ export function validatePassword(password: string): ValidationResult {
     return { valid: false, error: "Must contain at least 1 lowercase letter" }
   }
 
-  if (!/[0-9]/.test(password)) {
+  if (!/\d/.test(password)) {
     return { valid: false, error: "Must contain at least 1 number" }
   }
 

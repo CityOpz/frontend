@@ -90,14 +90,16 @@ CardHeader.displayName = "CardHeader"
 const CardTitle = React.forwardRef<
   HTMLHeadingElement,
   React.ComponentProps<"h3">
->(({ className, ...props }, ref) => {
+>(({ className, children, ...props }, ref) => {
   return (
     <h3
       ref={ref}
       data-slot="card-title"
       className={cn("font-headline-md text-headline-md text-white", className)}
       {...props}
-    />
+    >
+      {children}
+    </h3>
   )
 })
 

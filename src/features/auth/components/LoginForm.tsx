@@ -74,9 +74,9 @@ export function LoginForm() {
 
         <div className="mt-12 text-center lg:text-left">
           <p className="text-sm text-outline">
-            New to CityOps?
+            New to CityOps?{" "}
             <a
-              className="text-primary font-bold hover:underline ml-1"
+              className="text-primary font-bold hover:underline"
               href="/register"
             >
               Create your account
