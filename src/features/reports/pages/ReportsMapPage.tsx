@@ -1,4 +1,4 @@
-import { ArrowLeft, Layers3, MapPin, Navigation } from "lucide-react"
+import { ArrowLeft, Layers3, MapPin, Navigation, Plus } from "lucide-react"
 import { Link } from "react-router"
 import { Badge } from "@/shared/components/ui/badge"
 import { Card } from "@/shared/components/ui/card"
@@ -55,6 +55,13 @@ export default function ReportsMapPage() {
           </div>
 
           <div className="flex flex-wrap gap-3">
+            <Link
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 active:scale-95"
+              to="/reports/new"
+            >
+              <Plus className="size-4" />
+              Crear reporte
+            </Link>
             <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
               <MapPin className="size-5 text-primary" />
               <div>
