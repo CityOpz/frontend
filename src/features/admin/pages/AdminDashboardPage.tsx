@@ -10,6 +10,7 @@ import {
   Users,
 } from "lucide-react"
 import { useState } from "react"
+import { Link } from "react-router"
 import useDocumentTitle from "@/shared/hooks/useDocumentTitle"
 import { Badge } from "@/shared/components/ui/badge"
 import { Button } from "@/shared/components/ui/button"
@@ -21,9 +22,9 @@ import type { ReportStatus } from "../types/report.types"
 import { canTransitionReportStatus } from "../utils/report-status"
 
 const navItems = [
-  { label: "Resumen", icon: LayoutDashboard },
-  { label: "Reportes", icon: ClipboardList, active: true },
-  { label: "Mapa", icon: Map },
+  { label: "Resumen", icon: LayoutDashboard, path: "/dashboard" },
+  { label: "Reportes", icon: ClipboardList, active: true, path: "/dashboard" },
+  { label: "Mapa", icon: Map, path: "/map" },
   { label: "Usuarios", icon: Users },
   { label: "Configuración", icon: Settings },
 ]
@@ -64,21 +65,30 @@ export default function AdminDashboardPage() {
           <p className="px-3 pb-2 pt-3 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
             Gestión
           </p>
-          {navItems.map(({ label, icon: Icon, active }) => (
-            <button
+          {navItems.map(({ label, icon: Icon, active, path }) => {
+            const className = `flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium transition-colors ${
+              active
+                ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            }`
+
+            return path ? (
+              <Link
               key={label}
-              type="button"
               aria-current={active ? "page" : undefined}
-              className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium transition-colors ${
-                active
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              }`}
+              className={className}
+              to={path}
             >
               <Icon aria-hidden="true" className="size-5" />
               {label}
-            </button>
-          ))}
+              </Link>
+            ) : (
+              <button key={label} className={className} type="button">
+                <Icon aria-hidden="true" className="size-5" />
+                {label}
+              </button>
+            )
+          })}
         </nav>
 
         <div className="border-t border-sidebar-border p-4">
