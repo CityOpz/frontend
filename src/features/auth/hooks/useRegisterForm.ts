@@ -94,13 +94,13 @@ export function useRegisterForm() {
 
     for (const [field, value] of checks) {
       const result = validateField(field, value)
-      if (result === false) isValid = false // ✅ Sin negación
+      if (result === false) isValid = false
     }
 
     return isValid
   }
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!form.acceptTerms) {
@@ -130,7 +130,7 @@ export function useRegisterForm() {
 
       setTokens(access, refresh)
 
-      globalThis.location.href = "/dashboard" // ✅ globalThis
+      globalThis.location.href = "/dashboard"
     } catch (err) {
       const error = err as AxiosError<BackendError>
       const backendErrors = error.response?.data

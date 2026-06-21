@@ -26,7 +26,7 @@ export function useLoginForm() {
     }
   }
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!form.username || !form.password) {
