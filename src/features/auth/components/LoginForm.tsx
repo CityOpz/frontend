@@ -4,25 +4,27 @@ import { Input } from "@/shared/components/ui/input"
 import { PasswordInput } from "./PasswordInput"
 
 import { useLoginForm } from "../hooks/useLoginForm"
+import { Link } from "react-router"
 
 export function LoginForm() {
   const { form, loading, error, submit, update } = useLoginForm()
 
   return (
     <section className="w-full lg:w-1/2 flex flex-col justify-center items-center p-4 md:p-8 overflow-y-auto bg-background">
-      <div className="mb-16 flex items-center gap-3 self-start">
-        <div className="w-10 h-10 bg-primary rounded flex items-center justify-center text-background">
-          <Landmark className="w-5 h-5" />
-        </div>
-        <div>
-          <span className="text-xl font-black text-foreground tracking-tight uppercase">
-            City<span className="text-primary">Ops</span>
-          </span>
-          <span className="block text-[10px] text-outline tracking-[0.2em] uppercase font-bold">
-            GovTech Portal
-          </span>
-        </div>
-      </div>
+      <Link to="/" className="mb-16 flex items-center gap-3 self-start">
+          <div className="w-10 h-10 bg-primary rounded flex items-center justify-center text-background">
+            <Landmark className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="text-xl font-black text-foreground tracking-tight uppercase">
+              City<span className="text-primary">Ops</span>
+            </span>
+            <span className="block text-[10px] text-outline tracking-[0.2em] uppercase font-bold">
+              GovTech Portal
+            </span>
+          </div>
+      </Link>
+
 
       <div className="max-w-100 w-full">
         <header className="mb-12">

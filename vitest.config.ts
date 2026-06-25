@@ -29,6 +29,7 @@ export default defineConfig({
         "src/shared/components/ui/card.tsx",
         "src/shared/hooks/useDocumentTitle.ts",
         "src/shared/theme/**",
+        "src/features/landing/**",
       ],
     },
   },
