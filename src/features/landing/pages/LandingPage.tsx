@@ -3,8 +3,6 @@ import { Features } from "../components/Features"
 import { HowItWorks } from "../components/HowItWorks"
 import { MapPreview } from "../components/MapPreview"
 
-import "../styles/landing.css"
-
 export default function LandingPage() {
   return (
     <main className="bg-background">
