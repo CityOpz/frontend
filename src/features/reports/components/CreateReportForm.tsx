@@ -1,5 +1,12 @@
 import { useState, type SubmitEventHandler } from "react"
-import { CheckCircle2, FileText, LoaderCircle, LocateFixed, Send } from "lucide-react"
+import {
+  CheckCircle2,
+  FileText,
+  LoaderCircle,
+  LocateFixed,
+  MapPin,
+  Send,
+} from "lucide-react"
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
 
@@ -23,6 +30,8 @@ interface ReportFormState {
 interface ReportFormErrors {
   readonly title?: string
   readonly description?: string
+  readonly latitude?: string
+  readonly longitude?: string
   readonly location?: string
 }
 
@@ -46,6 +55,14 @@ export function CreateReportForm() {
 
     if (field === "title" || field === "description") {
       setErrors((currentErrors) => ({ ...currentErrors, [field]: undefined }))
+    }
+
+    if (field === "latitude" || field === "longitude") {
+      setErrors((currentErrors) => ({
+        ...currentErrors,
+        [field]: undefined,
+        location: undefined,
+      }))
     }
   }
 
@@ -91,6 +108,14 @@ export function CreateReportForm() {
       description: form.description.trim()
         ? undefined
         : "La descripción es obligatoria.",
+      latitude:
+        form.latitude.trim() && Number.isNaN(Number(form.latitude))
+          ? "Ingresa una latitud válida."
+          : undefined,
+      longitude:
+        form.longitude.trim() && Number.isNaN(Number(form.longitude))
+          ? "Ingresa una longitud válida."
+          : undefined,
     }
 
     setErrors((currentErrors) => ({
@@ -98,7 +123,12 @@ export function CreateReportForm() {
       location: currentErrors.location,
     }))
 
-    if (validationErrors.title || validationErrors.description) {
+    if (
+      validationErrors.title ||
+      validationErrors.description ||
+      validationErrors.latitude ||
+      validationErrors.longitude
+    ) {
       setIsSubmitted(false)
       return
     }
@@ -195,6 +225,35 @@ export function CreateReportForm() {
             {errors.location}
           </p>
         )}
+
+        <div className="mt-5 border-t border-border pt-4">
+          <div className="flex items-center gap-2">
+            <MapPin className="size-4 text-primary" />
+            <p className="text-sm font-semibold">Ingresar ubicación manualmente</p>
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <Input
+              error={errors.latitude}
+              id="manual-latitude"
+              inputMode="decimal"
+              label="Latitud"
+              onChange={(event) => updateField("latitude", event.target.value)}
+              placeholder="4.711000"
+              type="text"
+              value={form.latitude}
+            />
+            <Input
+              error={errors.longitude}
+              id="manual-longitude"
+              inputMode="decimal"
+              label="Longitud"
+              onChange={(event) => updateField("longitude", event.target.value)}
+              placeholder="-74.072100"
+              type="text"
+              value={form.longitude}
+            />
+          </div>
+        </div>
       </div>
 
       {isSubmitted && (
