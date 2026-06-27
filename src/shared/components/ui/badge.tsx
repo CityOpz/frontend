@@ -30,7 +30,7 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
               "h-2 w-2 rounded-full",
               variant === "primary" && "bg-primary-container",
               variant === "secondary" && "bg-secondary",
-              variant === "tertiary" && "bg-tertiary",
+              variant === "tertiary" && "bg-chart-3",
               variant === "success" && "bg-green-500",
               variant === "destructive" && "bg-destructive",
               variant === "default" && "bg-on-surface",

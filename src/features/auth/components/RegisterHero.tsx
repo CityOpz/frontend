@@ -2,6 +2,7 @@ import { Building2, BarChart3 } from "lucide-react"
 import ThemeToggle from "@/shared/theme/components/ThemeToggle"
 
 import "../styles/auth.css"
+import { Link } from "react-router"
 
 export function RegisterHero() {
   return (
@@ -12,14 +13,17 @@ export function RegisterHero() {
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-secondary/10 rounded-full blur-[100px]" />
 
       <div className="relative z-10 max-w-lg space-y-6">
-        <div className="inline-flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center glow-accent">
-            <Building2 className="w-7 h-7 text-primary-foreground" />
+        <Link to="/">
+          <div className="inline-flex items-center gap-4 mb-8">
+            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center glow-accent">
+              <Building2 className="w-7 h-7 text-primary-foreground" />
+            </div>
+            <span className="text-2xl font-extrabold tracking-tighter text-primary">
+              CityOps
+            </span>
           </div>
-          <span className="text-2xl font-extrabold tracking-tighter text-primary">
-            CityOps
-          </span>
-        </div>
+        </Link>
+
 
         <h1 className="text-5xl font-bold leading-tight text-foreground">
           Architecting <br />
