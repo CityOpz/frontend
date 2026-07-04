@@ -72,6 +72,25 @@ describe("CreateReportForm", () => {
     expect(getCurrentPosition).toHaveBeenCalledOnce()
   })
 
+  it("permite ingresar la ubicación manualmente", () => {
+    const { container } = render(<CreateReportForm />)
+
+    fireEvent.change(screen.getByLabelText("Latitud"), {
+      target: { value: "4.653300" },
+    })
+    fireEvent.change(screen.getByLabelText("Longitud"), {
+      target: { value: "-74.083700" },
+    })
+
+    expect(container.querySelector<HTMLInputElement>('input[name="latitude"]')).toHaveValue(
+      "4.653300",
+    )
+    expect(container.querySelector<HTMLInputElement>('input[name="longitude"]')).toHaveValue(
+      "-74.083700",
+    )
+    expect(screen.getByText("Ubicación obtenida: 4.653300, -74.083700")).toBeInTheDocument()
+  })
+
   it("muestra un error si el navegador no ofrece geolocalización", () => {
     render(<CreateReportForm />)
 
