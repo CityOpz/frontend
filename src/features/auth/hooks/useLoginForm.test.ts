@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { renderHook, act } from "@testing-library/react"
+import { createElement, type ReactNode } from "react"
+import { MemoryRouter } from "react-router"
 import type { AxiosResponse, AxiosError } from "axios"
 import { useRegisterForm } from "./useRegisterForm"
 import { authService } from "../services/auth.service"
@@ -24,6 +26,9 @@ interface RegisterErrorResponse {
 }
 
 describe("useRegisterForm", () => {
+  const wrapper = ({ children }: { readonly children: ReactNode }) =>
+    createElement(MemoryRouter, null, children)
+
   beforeEach(() => {
     vi.clearAllMocks()
     useAuthStore.setState({
@@ -34,7 +39,7 @@ describe("useRegisterForm", () => {
   })
 
   it("estado inicial es correcto", () => {
-    const { result } = renderHook(() => useRegisterForm())
+    const { result } = renderHook(() => useRegisterForm(), { wrapper })
     
     expect(result.current.loading).toBe(false)
     expect(result.current.termsError).toBeNull()
@@ -43,7 +48,7 @@ describe("useRegisterForm", () => {
   })
 
   it("submit falla si no acepta términos", async () => {
-    const { result } = renderHook(() => useRegisterForm())
+    const { result } = renderHook(() => useRegisterForm(), { wrapper })
     
     const fakeEvent = { preventDefault: vi.fn() } as unknown as React.FormEvent<HTMLFormElement>
     
@@ -55,7 +60,7 @@ describe("useRegisterForm", () => {
   })
 
   it("submit falla si validaciones fallan", async () => {
-    const { result } = renderHook(() => useRegisterForm())
+    const { result } = renderHook(() => useRegisterForm(), { wrapper })
     
     await act(async () => {
       result.current.update("acceptTerms")(true)
@@ -83,7 +88,7 @@ describe("useRegisterForm", () => {
     mockRegister.mockResolvedValue(registerResponse)
     mockLogin.mockResolvedValue(loginResponse)
 
-    const { result } = renderHook(() => useRegisterForm())
+    const { result } = renderHook(() => useRegisterForm(), { wrapper })
     
     await act(async () => {
       result.current.update("firstName")("John")
@@ -93,12 +98,6 @@ describe("useRegisterForm", () => {
       result.current.update("password")("Password1")
       result.current.update("confirmPassword")("Password1")
       result.current.update("acceptTerms")(true)
-    })
-
-    const originalLocation = globalThis.location
-    Object.defineProperty(globalThis, "location", {
-      value: { href: "" },
-      writable: true,
     })
 
     const fakeEvent = { preventDefault: vi.fn() } as unknown as React.FormEvent<HTMLFormElement>
@@ -111,10 +110,6 @@ describe("useRegisterForm", () => {
     expect(mockLogin).toHaveBeenCalled()
     expect(useAuthStore.getState().access).toBe("access123")
 
-    Object.defineProperty(globalThis, "location", {
-      value: originalLocation,
-      writable: true,
-    })
   })
 
   it("submit con error del backend mapea errores a campos", async () => {
@@ -130,7 +125,7 @@ describe("useRegisterForm", () => {
     
     mockRegister.mockRejectedValue(mockError)
 
-    const { result } = renderHook(() => useRegisterForm())
+    const { result } = renderHook(() => useRegisterForm(), { wrapper })
     
     await act(async () => {
       result.current.update("firstName")("John")

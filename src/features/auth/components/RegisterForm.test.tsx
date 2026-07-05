@@ -1,10 +1,15 @@
 // src/features/auth/components/RegisterForm.test.tsx
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
+import { MemoryRouter } from "react-router"
 import { RegisterForm } from "./RegisterForm"
 import { useRegisterForm } from "../hooks/useRegisterForm"
 
 vi.mock("../hooks/useRegisterForm")
+
+const renderWithRouter = (ui: React.ReactElement) => {
+  return render(<MemoryRouter>{ui}</MemoryRouter>)
+}
 
 describe("RegisterForm", () => {
   const mockUpdate = vi.fn().mockReturnValue(vi.fn())
@@ -29,6 +34,7 @@ describe("RegisterForm", () => {
       form: defaultForm,
       errors: {},
       termsError: null,
+      submitError: null,
       loading: false,
       submit: mockSubmit,
       update: mockUpdate,
@@ -37,14 +43,14 @@ describe("RegisterForm", () => {
   })
 
   it("renderiza el título y descripción", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     expect(screen.getByText("Create an account")).toBeInTheDocument()
     expect(screen.getByText("Access the urban management suite.")).toBeInTheDocument()
   })
 
   it("renderiza todos los campos del formulario", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     expect(screen.getByLabelText(/first name/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/last name/i)).toBeInTheDocument()
@@ -55,20 +61,20 @@ describe("RegisterForm", () => {
   })
 
   it("renderiza el checkbox de términos", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     expect(screen.getByRole("checkbox")).toBeInTheDocument()
   })
 
   it("renderiza el botón de submit", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     const submitButton = screen.getByRole("button", { name: /create account/i })
     expect(submitButton).toBeInTheDocument()
   })
 
   it("renderiza el link para login", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     expect(screen.getByText(/already have an account/i)).toBeInTheDocument()
     expect(screen.getByText(/login/i)).toBeInTheDocument()
@@ -82,13 +88,14 @@ describe("RegisterForm", () => {
         email: "Invalid email format",
       },
       termsError: null,
+      submitError: null,
       loading: false,
       submit: mockSubmit,
       update: mockUpdate,
       validateField: mockValidateField,
     })
 
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     expect(screen.getByText("Username is required")).toBeInTheDocument()
     expect(screen.getByText("Invalid email format")).toBeInTheDocument()
@@ -99,13 +106,14 @@ describe("RegisterForm", () => {
       form: defaultForm,
       errors: {},
       termsError: "You must accept the terms and conditions",
+      submitError: null,
       loading: false,
       submit: mockSubmit,
       update: mockUpdate,
       validateField: mockValidateField,
     })
 
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     expect(screen.getByText("You must accept the terms and conditions")).toBeInTheDocument()
   })
@@ -115,20 +123,38 @@ describe("RegisterForm", () => {
       form: defaultForm,
       errors: {},
       termsError: null,
+      submitError: null,
       loading: true,
       submit: mockSubmit,
       update: mockUpdate,
       validateField: mockValidateField,
     })
 
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     const submitButton = screen.getByRole("button", { name: /loading/i })
     expect(submitButton).toBeDisabled()
   })
 
+  it("muestra error general de envío cuando existe", () => {
+    vi.mocked(useRegisterForm).mockReturnValue({
+      form: defaultForm,
+      errors: {},
+      termsError: null,
+      submitError: "We could not create your account.",
+      loading: false,
+      submit: mockSubmit,
+      update: mockUpdate,
+      validateField: mockValidateField,
+    })
+
+    renderWithRouter(<RegisterForm />)
+
+    expect(screen.getByText("We could not create your account.")).toBeInTheDocument()
+  })
+
   it("llama a update cuando se cambia firstName", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     const firstNameInput = screen.getByLabelText(/first name/i)
     fireEvent.change(firstNameInput, { target: { value: "John" } })
@@ -137,7 +163,7 @@ describe("RegisterForm", () => {
   })
 
   it("llama a update cuando se cambia lastName", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     const lastNameInput = screen.getByLabelText(/last name/i)
     fireEvent.change(lastNameInput, { target: { value: "Doe" } })
@@ -146,7 +172,7 @@ describe("RegisterForm", () => {
   })
 
   it("llama a update cuando se cambia username", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     const usernameInput = screen.getByLabelText(/username/i)
     fireEvent.change(usernameInput, { target: { value: "johndoe" } })
@@ -155,7 +181,7 @@ describe("RegisterForm", () => {
   })
 
   it("llama a update cuando se cambia email", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     const emailInput = screen.getByLabelText(/email/i)
     fireEvent.change(emailInput, { target: { value: "john@example.com" } })
@@ -164,7 +190,7 @@ describe("RegisterForm", () => {
   })
 
   it("llama a validateField cuando se hace blur en firstName", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     const firstNameInput = screen.getByLabelText(/first name/i)
     fireEvent.blur(firstNameInput)
@@ -173,7 +199,7 @@ describe("RegisterForm", () => {
   })
 
   it("llama a validateField cuando se hace blur en email", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     const emailInput = screen.getByLabelText(/email/i)
     fireEvent.blur(emailInput)
@@ -182,7 +208,7 @@ describe("RegisterForm", () => {
   })
 
   it("llama a update cuando se cambia el checkbox de términos", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     const checkbox = screen.getByRole("checkbox")
     fireEvent.click(checkbox)
@@ -191,7 +217,7 @@ describe("RegisterForm", () => {
   })
 
   it("llama a submit cuando se envía el formulario", async () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     // ✅ Obtener el formulario usando el botón submit
     const submitButton = screen.getByRole("button", { name: /create account/i })
@@ -209,7 +235,7 @@ describe("RegisterForm", () => {
   })
 
   it("muestra los requisitos de password cuando el campo está enfocado", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     const passwordInput = screen.getByLabelText(/^password$/i)
     fireEvent.focus(passwordInput)
@@ -222,7 +248,7 @@ describe("RegisterForm", () => {
   })
 
   it("oculta los requisitos de password cuando el campo pierde el foco", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     
     const passwordInput = screen.getByLabelText(/^password$/i)
     fireEvent.focus(passwordInput)
@@ -232,21 +258,21 @@ describe("RegisterForm", () => {
   })
 
   it("llama a update cuando se cambia password", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     const passwordInput = screen.getByLabelText(/^password$/i)
     fireEvent.change(passwordInput, { target: { value: "Password1" } })
     expect(mockUpdate).toHaveBeenCalledWith("password")
   })
 
   it("llama a update cuando se cambia confirmPassword", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     fireEvent.change(confirmPasswordInput, { target: { value: "Password1" } })
     expect(mockUpdate).toHaveBeenCalledWith("confirmPassword")
   })
 
   it("llama a validateField cuando se hace blur en password", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
     const passwordInput = screen.getByLabelText(/^password$/i)
     fireEvent.blur(passwordInput)
     expect(mockValidateField).toHaveBeenCalledWith("password", "")

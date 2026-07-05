@@ -1,14 +1,56 @@
-import { ArrowLeft, Layers3, MapPin, Navigation, Plus } from "lucide-react"
+import { useEffect, useState } from "react"
+import {
+  AlertCircle,
+  ArrowLeft,
+  Layers3,
+  LoaderCircle,
+  MapPin,
+  Navigation,
+  Plus,
+} from "lucide-react"
 import { Link } from "react-router"
 import { Badge } from "@/shared/components/ui/badge"
 import { Card } from "@/shared/components/ui/card"
 import ThemeToggle from "@/shared/theme/components/ThemeToggle"
 import useDocumentTitle from "@/shared/hooks/useDocumentTitle"
 import { ReportsMap } from "../components/ReportsMap"
-import { mapReportsMock } from "../data/map-reports.mock"
+import { reportsService } from "../services/reports.service"
+import type { MapReport } from "../types/map-report.types"
 
 export default function ReportsMapPage() {
   useDocumentTitle("Mapa de reportes")
+  const [reports, setReports] = useState<readonly MapReport[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string>()
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadReports() {
+      try {
+        const mapReports = await reportsService.listMapReports()
+
+        if (isMounted) {
+          setReports(mapReports)
+          setError(undefined)
+        }
+      } catch {
+        if (isMounted) {
+          setError("No fue posible cargar los reportes del mapa.")
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadReports()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -65,7 +107,7 @@ export default function ReportsMapPage() {
             <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
               <MapPin className="size-5 text-primary" />
               <div>
-                <strong className="block text-lg leading-none">{mapReportsMock.length}</strong>
+                <strong className="block text-lg leading-none">{reports.length}</strong>
                 <span className="text-xs text-muted-foreground">Reportes visibles</span>
               </div>
             </div>
@@ -84,10 +126,30 @@ export default function ReportsMapPage() {
           className="relative min-h-[480px] overflow-hidden border-border bg-card sm:min-h-[620px]"
           padding="none"
         >
-          <ReportsMap reports={mapReportsMock} />
-          <div className="pointer-events-none absolute bottom-7 left-4 z-[500] rounded-xl border border-white/20 bg-slate-950/80 px-3 py-2 text-xs text-white shadow-lg backdrop-blur-md">
-            Selecciona un marcador para ver el reporte
-          </div>
+          {isLoading ? (
+            <div className="grid min-h-[480px] place-items-center sm:min-h-[620px]">
+              <div className="flex items-center gap-3 text-sm font-semibold text-muted-foreground">
+                <LoaderCircle className="size-5 animate-spin text-primary" />
+                Cargando reportes...
+              </div>
+            </div>
+          ) : error ? (
+            <div className="grid min-h-[480px] place-items-center p-6 text-center sm:min-h-[620px]">
+              <div className="max-w-sm space-y-3">
+                <AlertCircle className="mx-auto size-8 text-red-500" />
+                <p className="text-sm font-semibold text-foreground">{error}</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <ReportsMap reports={reports} />
+              <div className="pointer-events-none absolute bottom-7 left-4 z-[500] rounded-xl border border-white/20 bg-slate-950/80 px-3 py-2 text-xs text-white shadow-lg backdrop-blur-md">
+                {reports.length
+                  ? "Selecciona un marcador para ver el reporte"
+                  : "No hay reportes con ubicación para mostrar"}
+              </div>
+            </>
+          )}
         </Card>
       </main>
     </div>

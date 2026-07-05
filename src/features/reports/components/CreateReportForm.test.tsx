@@ -1,9 +1,33 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { reportsService } from "../services/reports.service"
 import { CreateReportForm } from "./CreateReportForm"
+
+vi.mock("../services/reports.service", async () => {
+  const actual = await vi.importActual<typeof import("../services/reports.service")>(
+    "../services/reports.service",
+  )
+
+  return {
+    ...actual,
+    reportsService: {
+      create: vi.fn(),
+    },
+  }
+})
 
 describe("CreateReportForm", () => {
   beforeEach(() => {
+    vi.clearAllMocks()
+    vi.mocked(reportsService.create).mockResolvedValue({
+      data: {
+        id: 1,
+        title: "Reporte creado",
+        detail: "Detalle",
+        status: "PENDING",
+      },
+    } as Awaited<ReturnType<typeof reportsService.create>>)
+
     Object.defineProperty(globalThis.navigator, "geolocation", {
       configurable: true,
       value: undefined,
@@ -20,7 +44,7 @@ describe("CreateReportForm", () => {
     expect(screen.queryByRole("status")).not.toBeInTheDocument()
   })
 
-  it("permite enviar cuando los campos obligatorios están completos", () => {
+  it("permite enviar cuando los campos obligatorios están completos", async () => {
     render(<CreateReportForm />)
 
     fireEvent.change(screen.getByLabelText("Título"), {
@@ -30,14 +54,28 @@ describe("CreateReportForm", () => {
       target: { value: "El semáforo no funciona desde esta mañana." },
     })
     fireEvent.change(screen.getByLabelText("Categoría"), {
-      target: { value: "Movilidad" },
+      target: { value: "4" },
+    })
+    fireEvent.change(screen.getByLabelText("Latitud"), {
+      target: { value: "4.653300" },
+    })
+    fireEvent.change(screen.getByLabelText("Longitud"), {
+      target: { value: "-74.083700" },
     })
     fireEvent.click(screen.getByRole("button", { name: "Crear reporte" }))
 
-    expect(screen.getByLabelText("Categoría")).toHaveValue("Movilidad")
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "Reporte creado correctamente",
-    )
+    await waitFor(() => {
+      expect(reportsService.create).toHaveBeenCalledWith({
+        title: "Semáforo fuera de servicio",
+        detail: "El semáforo no funciona desde esta mañana.",
+        categoryId: 4,
+        latitude: 4.6533,
+        longitude: -74.0837,
+        photo: null,
+      })
+    })
+    expect(screen.getByLabelText("Categoría")).toHaveValue("1")
+    expect(screen.getByRole("status")).toHaveTextContent("Reporte creado correctamente")
   })
 
   it("guarda latitud y longitud en campos ocultos", async () => {
@@ -89,6 +127,32 @@ describe("CreateReportForm", () => {
       "-74.083700",
     )
     expect(screen.getByText("Ubicación obtenida: 4.653300, -74.083700")).toBeInTheDocument()
+  })
+
+  it("muestra un error si el envío al backend falla", async () => {
+    vi.mocked(reportsService.create).mockRejectedValue({
+      response: { data: { detail: "Credenciales no provistas." } },
+    })
+
+    render(<CreateReportForm />)
+
+    fireEvent.change(screen.getByLabelText("Título"), {
+      target: { value: "Andén roto" },
+    })
+    fireEvent.change(screen.getByLabelText("Descripción"), {
+      target: { value: "Hay una losa levantada en la esquina." },
+    })
+    fireEvent.change(screen.getByLabelText("Latitud"), {
+      target: { value: "4.653300" },
+    })
+    fireEvent.change(screen.getByLabelText("Longitud"), {
+      target: { value: "-74.083700" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Crear reporte" }))
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent("Credenciales no provistas.")
+    })
   })
 
   it("muestra un error si el navegador no ofrece geolocalización", () => {
