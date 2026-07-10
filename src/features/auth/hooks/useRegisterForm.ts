@@ -3,7 +3,7 @@ import { useNavigate } from "react-router"
 import type { AxiosError } from "axios"
 import { authService } from "../services/auth.service"
 import { useAuthStore } from "../store/auth.store"
-import type { FormErrors, RegisterFormState } from "../types/auth.types"
+import type { FormErrors, RegisterFormState, UserInfo } from "../types/auth.types"
 import {
   validateUsername,
   validateEmail,
@@ -200,7 +200,7 @@ function mapBackendErrors(backendErrors: BackendError): Partial<FormErrors> {
 
 async function registerAndLogin(
   form: RegisterFormState,
-  setTokens: (access: string, refresh: string) => void,
+  setTokens: (access: string, refresh: string, user?: UserInfo) => void,  // ✅ UserInfo
 ) {
   await authService.register({
     username: form.username,
@@ -215,6 +215,6 @@ async function registerAndLogin(
     password: form.password,
   })
 
-  const { access, refresh } = loginRes.data
-  setTokens(access, refresh)
+  const { access, refresh, user } = loginRes.data
+  setTokens(access, refresh, user)
 }

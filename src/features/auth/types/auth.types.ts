@@ -7,6 +7,7 @@ export interface LoginFormState {
 export interface AuthTokens {
   access: string
   refresh: string
+  user?: UserInfo
 }
 
 export interface RegisterPayload {
@@ -42,4 +43,12 @@ export interface FormErrors {
   email?: string
   password?: string
   confirmPassword?: string
+}
+
+export interface UserInfo {
+  id: number
+  role: "CITIZEN" | "ADMIN"
+  first_name: string
+  last_name: string
+  email: string
 }

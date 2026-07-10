@@ -1,12 +1,14 @@
 import { create } from "zustand"
+import type { UserInfo } from "../types/auth.types"
 
 type AuthState = {
   access: string | null
   refresh: string | null
+  user: UserInfo | null
   isAuthenticated: boolean
   initialized?: boolean
 
-  setTokens: (access: string, refresh: string) => void
+  setTokens: (access: string, refresh: string, user?: UserInfo | null) => void
   setAccess: (access: string) => void
   logout: () => void
 }
@@ -16,9 +18,19 @@ const getInitialState = () => {
   // Tokens are short-lived (5min access, 1day refresh) and bound to the origin.
   const access = localStorage.getItem("access_token")
   const refresh = localStorage.getItem("refresh_token")
+  const userStr = localStorage.getItem("user_info")
+  let user: UserInfo | null = null
+  try {
+    if (userStr) {
+      user = JSON.parse(userStr)
+    }
+  } catch (e) {
+    console.error("Failed to parse user info from localStorage", e)
+  }
   return {
     access,
     refresh,
+    user,
     isAuthenticated: !!(access && refresh),
   }
 }
@@ -26,7 +38,7 @@ const getInitialState = () => {
 export const useAuthStore = create<AuthState>((set) => ({
   ...getInitialState(),
 
-  setTokens: (access, refresh) => {
+  setTokens: (access, refresh, user = null) => {
     // Security: Tokens are stored in localStorage for SPA authentication.
     // This is acceptable because:
     // - Access token is short-lived (5 minutes)
@@ -35,7 +47,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     // Consider httpOnly cookies for higher security requirements.
     localStorage.setItem("access_token", access)
     localStorage.setItem("refresh_token", refresh)
-    set({ access, refresh, isAuthenticated: true })
+    if (user) {
+      localStorage.setItem("user_info", JSON.stringify(user))
+    } else {
+      localStorage.removeItem("user_info")
+    }
+    set({ access, refresh, user, isAuthenticated: true })
   },
 
   setAccess: (access) => {
@@ -49,6 +66,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     // Security: Clearing tokens from localStorage to terminate the session.
     localStorage.removeItem("access_token")
     localStorage.removeItem("refresh_token")
-    set({ access: null, refresh: null, isAuthenticated: false })
+    localStorage.removeItem("user_info")
+    set({ access: null, refresh: null, user: null, isAuthenticated: false })
   },
 }))

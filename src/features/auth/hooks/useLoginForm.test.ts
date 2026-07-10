@@ -4,6 +4,7 @@ import { useLoginForm } from "./useLoginForm"
 import { authService } from "../services/auth.service"
 import { useAuthStore } from "../store/auth.store"
 import type { AxiosError } from "axios"
+import type { UserInfo } from "../types/auth.types"
 
 const navigateMock = vi.fn()
 
@@ -23,12 +24,13 @@ vi.mock("../store/auth.store", () => ({
 
 const setTokensMock = vi.fn()
 
+
 interface AuthStoreState {
   access: string | null
   refresh: string | null
   isAuthenticated: boolean
   initialized: boolean
-  setTokens: (access: string, refresh: string) => void
+  setTokens: (access: string, refresh: string, user?: UserInfo) => void  // ✅ UserInfo
   setAccess: (access: string) => void
   logout: () => void
 }
@@ -143,8 +145,9 @@ describe("useLoginForm", () => {
   })
 
   it("login exitoso: guarda tokens y navega a /dashboard", async () => {
+    const fakeUser = { id: 1, role: "ADMIN", first_name: "Juan", last_name: "Toro", email: "juan@example.com" }
     vi.mocked(authService.login).mockResolvedValue({
-      data: { access: "access-token", refresh: "refresh-token" },
+      data: { access: "access-token", refresh: "refresh-token", user: fakeUser },
     } as Awaited<ReturnType<typeof authService.login>>)
 
     const { result } = renderHook(() => useLoginForm())
@@ -161,7 +164,7 @@ describe("useLoginForm", () => {
       username: "usuario",
       password: "secreto",
     })
-    expect(setTokensMock).toHaveBeenCalledWith("access-token", "refresh-token")
+    expect(setTokensMock).toHaveBeenCalledWith("access-token", "refresh-token", fakeUser)
     expect(navigateMock).toHaveBeenCalledWith("/dashboard", { replace: true })
     expect(result.current.error).toBeNull()
     expect(result.current.loading).toBe(false)

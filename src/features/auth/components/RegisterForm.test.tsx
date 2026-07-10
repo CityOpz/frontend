@@ -189,6 +189,24 @@ describe("RegisterForm", () => {
     expect(mockUpdate).toHaveBeenCalledWith("email")
   })
 
+  it("convierte email a minúsculas al cambiar", () => {
+    const updateFn = vi.fn()
+    mockUpdate.mockImplementation((field: string) => {
+      if (field === "email") {
+        return updateFn
+      }
+      return vi.fn()
+    })
+    
+    renderWithRouter(<RegisterForm />)
+    
+    const emailInput = screen.getByLabelText(/email/i)
+    fireEvent.change(emailInput, { target: { value: "TEST@EMAIL.COM" } })
+    
+    expect(mockUpdate).toHaveBeenCalledWith("email")
+    expect(updateFn).toHaveBeenCalledWith("test@email.com")
+  })
+
   it("llama a validateField cuando se hace blur en firstName", () => {
     renderWithRouter(<RegisterForm />)
     
@@ -219,7 +237,6 @@ describe("RegisterForm", () => {
   it("llama a submit cuando se envía el formulario", async () => {
     renderWithRouter(<RegisterForm />)
     
-    // ✅ Obtener el formulario usando el botón submit
     const submitButton = screen.getByRole("button", { name: /create account/i })
     const form = submitButton.closest("form")
     
@@ -280,10 +297,8 @@ describe("RegisterForm", () => {
 
   it("llama a validateField cuando se hace blur en confirmPassword", () => {
     renderWithRouter(<RegisterForm />)
-
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     fireEvent.blur(confirmPasswordInput)
-
     expect(mockValidateField).toHaveBeenCalledWith("confirmPassword", "")
   })
 })

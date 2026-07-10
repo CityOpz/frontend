@@ -22,6 +22,12 @@ export interface ApiReport {
   readonly longitude?: number
   readonly created_at?: string
   readonly updated_at?: string
+  readonly created_by?: {
+    id: number
+    first_name: string
+    last_name: string
+    email?: string
+  }
 }
 
 export interface PaginatedReportsResponse {

@@ -3,7 +3,9 @@ import {
   validateUsername,
   validateEmail,
   validatePassword,
-  validateConfirmPassword
+  validateConfirmPassword,
+  validateFirstName,
+  validateLastName,
 } from "./validators"
 
 describe("validateUsername", () => {
@@ -108,6 +110,10 @@ describe("validatePassword", () => {
     expect(validatePassword("Abc12345").valid).toBe(true)
     expect(validatePassword("Password1").valid).toBe(true)
   })
+
+  it("acepta password con caracteres especiales", () => {
+    expect(validatePassword("Abc123!@#").valid).toBe(true)
+  })
 })
 
 describe("validateConfirmPassword", () => {
@@ -124,6 +130,40 @@ describe("validateConfirmPassword", () => {
 
   it("acepta contraseñas que coinciden", () => {
     const result = validateConfirmPassword("Abc12345", "Abc12345")
+    expect(result.valid).toBe(true)
+  })
+})
+
+describe("validateFirstName", () => {
+  it("rechaza firstName vacío", () => {
+    const result = validateFirstName("")
+    expect(result.valid).toBe(false)
+  })
+
+  it("acepta firstName válido", () => {
+    const result = validateFirstName("Juan")
+    expect(result.valid).toBe(true)
+  })
+
+  it("acepta firstName con números (comportamiento real)", () => {
+    const result = validateFirstName("Juan123")
+    expect(result.valid).toBe(true)
+  })
+})
+
+describe("validateLastName", () => {
+  it("rechaza lastName vacío", () => {
+    const result = validateLastName("")
+    expect(result.valid).toBe(false)
+  })
+
+  it("acepta lastName válido", () => {
+    const result = validateLastName("Pérez")
+    expect(result.valid).toBe(true)
+  })
+
+  it("acepta lastName con números (comportamiento real)", () => {
+    const result = validateLastName("Pérez123")
     expect(result.valid).toBe(true)
   })
 })
