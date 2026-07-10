@@ -1,4 +1,4 @@
-import { useState, type ChangeEventHandler, type SubmitEventHandler } from "react"
+import { useState, type ChangeEventHandler, } from "react"
 import {
   AlertCircle,
   CheckCircle2,
@@ -39,6 +39,30 @@ const initialForm: ReportFormState = {
   latitude: "",
   longitude: "",
   photo: null,
+}
+
+function validateLatitude(value: string) {
+  if (!value.trim()) {
+    return "La latitud es obligatoria."
+  }
+
+  if (Number.isNaN(Number(value))) {
+    return "Ingresa una latitud válida."
+  }
+
+  return undefined
+}
+
+function validateLongitude(value: string) {
+  if (!value.trim()) {
+    return "La longitud es obligatoria."
+  }
+
+  if (Number.isNaN(Number(value))) {
+    return "Ingresa una longitud válida."
+  }
+
+  return undefined
 }
 
 export function CreateReportForm() {
@@ -107,7 +131,7 @@ export function CreateReportForm() {
     )
   }
 
-  const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (event) => {
+const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const validationErrors: ReportFormErrors = {
@@ -115,18 +139,8 @@ export function CreateReportForm() {
       description: form.description.trim()
         ? undefined
         : "La descripción es obligatoria.",
-      latitude:
-        !form.latitude.trim()
-          ? "La latitud es obligatoria."
-          : Number.isNaN(Number(form.latitude))
-          ? "Ingresa una latitud válida."
-          : undefined,
-      longitude:
-        !form.longitude.trim()
-          ? "La longitud es obligatoria."
-          : Number.isNaN(Number(form.longitude))
-          ? "Ingresa una longitud válida."
-          : undefined,
+      latitude: validateLatitude(form.latitude),
+      longitude: validateLongitude(form.longitude)
     }
 
     setErrors((currentErrors) => ({
@@ -175,7 +189,7 @@ export function CreateReportForm() {
   }
 
   return (
-    <form className="space-y-6" noValidate onSubmit={handleSubmit}>
+    <form noValidate className="space-y-6" onSubmit={handleSubmit}>
       <Input
         error={errors.title}
         id="report-title"
@@ -319,7 +333,6 @@ export function CreateReportForm() {
 
       {isSubmitted && (
         <output
-          role="status"
           className="flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-700 dark:text-emerald-300"
         >
           <CheckCircle2 className="mt-0.5 size-5 shrink-0" />

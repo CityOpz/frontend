@@ -23,6 +23,41 @@ export default function ReportsMapPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>()
 
+  const renderCardContent = () => {
+    if (isLoading) {
+      return (
+        <div className="grid min-h-[480px] place-items-center sm:min-h-[620px]">
+          <div className="flex items-center gap-3 text-sm font-semibold text-muted-foreground">
+            <LoaderCircle className="size-5 animate-spin text-primary" />
+            Cargando reportes...
+          </div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="grid min-h-[480px] place-items-center p-6 text-center sm:min-h-[620px]">
+          <div className="max-w-sm space-y-3">
+            <AlertCircle className="mx-auto size-8 text-red-500" />
+            <p className="text-sm font-semibold text-foreground">{error}</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <ReportsMap reports={reports} />
+        <div className="pointer-events-none absolute bottom-7 left-4 z-[500] rounded-xl border border-white/20 bg-slate-950/80 px-3 py-2 text-xs text-white shadow-lg backdrop-blur-md">
+          {reports.length
+            ? "Selecciona un marcador para ver el reporte"
+            : "No hay reportes con ubicación para mostrar"}
+        </div>
+      </>
+    );
+  };
+
   useEffect(() => {
     let isMounted = true
 
@@ -126,30 +161,7 @@ export default function ReportsMapPage() {
           className="relative min-h-[480px] overflow-hidden border-border bg-card sm:min-h-[620px]"
           padding="none"
         >
-          {isLoading ? (
-            <div className="grid min-h-[480px] place-items-center sm:min-h-[620px]">
-              <div className="flex items-center gap-3 text-sm font-semibold text-muted-foreground">
-                <LoaderCircle className="size-5 animate-spin text-primary" />
-                Cargando reportes...
-              </div>
-            </div>
-          ) : error ? (
-            <div className="grid min-h-[480px] place-items-center p-6 text-center sm:min-h-[620px]">
-              <div className="max-w-sm space-y-3">
-                <AlertCircle className="mx-auto size-8 text-red-500" />
-                <p className="text-sm font-semibold text-foreground">{error}</p>
-              </div>
-            </div>
-          ) : (
-            <>
-              <ReportsMap reports={reports} />
-              <div className="pointer-events-none absolute bottom-7 left-4 z-[500] rounded-xl border border-white/20 bg-slate-950/80 px-3 py-2 text-xs text-white shadow-lg backdrop-blur-md">
-                {reports.length
-                  ? "Selecciona un marcador para ver el reporte"
-                  : "No hay reportes con ubicación para mostrar"}
-              </div>
-            </>
-          )}
+          {renderCardContent()}
         </Card>
       </main>
     </div>
