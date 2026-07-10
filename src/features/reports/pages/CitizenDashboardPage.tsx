@@ -4,7 +4,6 @@ import {
   ChevronDown,
   ClipboardList,
   ImagePlus,
-  LayoutDashboard,
   LogOut,
   Map,
   MapPin,

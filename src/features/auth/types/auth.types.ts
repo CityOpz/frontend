@@ -7,6 +7,7 @@ export interface LoginFormState {
 export interface AuthTokens {
   access: string
   refresh: string
+  user?: UserInfo
 }
 
 export interface RegisterPayload {
