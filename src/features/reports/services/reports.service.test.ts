@@ -209,19 +209,16 @@ describe("reportsService", () => {
   })
 
   describe("listMapReports", () => {
-    it("obtiene la lista, pide el detalle de cada reporte y descarta los que retornan null", async () => {
+    it("usa los reportes con coordenadas de la lista sin pedir sus detalles", async () => {
       vi.mocked(api.get).mockImplementation((url: string) => {
         if (url === "/reports/all/") {
           return Promise.resolve({
-            data: { results: [{ id: 1 }, { id: 2 }] },
-          })
-        }
-        if (url === "/reports/1/") {
-          return Promise.resolve({ data: buildApiReport({ id: 1 }) })
-        }
-        if (url === "/reports/2/") {
-          return Promise.resolve({
-            data: buildApiReport({ id: 2, latitude: undefined, longitude: undefined }),
+            data: {
+              count: 2,
+              next: null,
+              previous: null,
+              results: [buildApiReport({ id: 1 }), buildApiReport({ id: 2 })],
+            },
           })
         }
         return Promise.reject(new Error(`URL inesperada: ${url}`))
@@ -230,14 +227,75 @@ describe("reportsService", () => {
       const result = await reportsService.listMapReports()
 
       expect(api.get).toHaveBeenCalledWith("/reports/all/")
-      expect(api.get).toHaveBeenCalledWith("/reports/1/")
-      expect(api.get).toHaveBeenCalledWith("/reports/2/")
-      expect(result).toHaveLength(1)
+      expect(api.get).not.toHaveBeenCalledWith("/reports/1/")
+      expect(api.get).not.toHaveBeenCalledWith("/reports/2/")
+      expect(result).toHaveLength(2)
       expect(result[0].id).toBe("REP-001")
     })
 
+    it("omite un reporte cuyo detalle falla y conserva los demás", async () => {
+      vi.mocked(api.get).mockImplementation((url: string) => {
+        if (url === "/reports/all/") {
+          return Promise.resolve({
+            data: {
+              count: 2,
+              next: null,
+              previous: null,
+              results: [
+                buildApiReport({ id: 1, latitude: undefined, longitude: undefined }),
+                buildApiReport({ id: 2 }),
+              ],
+            },
+          })
+        }
+        if (url === "/reports/1/") {
+          return Promise.reject(new Error("No encontrado"))
+        }
+        return Promise.reject(new Error(`URL inesperada: ${url}`))
+      })
+
+      const result = await reportsService.listMapReports()
+
+      expect(api.get).toHaveBeenCalledWith("/reports/1/")
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe("REP-002")
+    })
+
+    it("obtiene todas las páginas de resultados", async () => {
+      vi.mocked(api.get).mockImplementation((url: string) => {
+        if (url === "/reports/all/") {
+          return Promise.resolve({
+            data: {
+              count: 2,
+              next: "/reports/all/?page=2",
+              previous: null,
+              results: [buildApiReport({ id: 1 })],
+            },
+          })
+        }
+        if (url === "/reports/all/?page=2") {
+          return Promise.resolve({
+            data: {
+              count: 2,
+              next: null,
+              previous: "/reports/all/",
+              results: [buildApiReport({ id: 2 })],
+            },
+          })
+        }
+        return Promise.reject(new Error(`URL inesperada: ${url}`))
+      })
+
+      const result = await reportsService.listMapReports()
+
+      expect(result).toHaveLength(2)
+      expect(api.get).toHaveBeenCalledWith("/reports/all/?page=2")
+    })
+
     it("retorna arreglo vacío cuando no hay resultados", async () => {
-      vi.mocked(api.get).mockResolvedValue({ data: { results: [] } })
+      vi.mocked(api.get).mockResolvedValue({
+        data: { count: 0, next: null, previous: null, results: [] },
+      })
       const result = await reportsService.listMapReports()
       expect(result).toEqual([])
     })

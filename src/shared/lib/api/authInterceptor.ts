@@ -22,20 +22,20 @@ api.interceptors.response.use(
     const originalRequest = error.config
 
     if (!error.response) {
-      throw error // ✅ Cambiado
+      throw error 
     }
 
     if (originalRequest.url?.includes("/token/refresh/")) {
       useAuthStore.getState().logout()
-      throw error // ✅ Cambiado
+      throw error 
     }
 
     if (error.response.status !== 401) {
-      throw error // ✅ Cambiado
+      throw error 
     }
 
     if (originalRequest._retry) {
-      throw error // ✅ Cambiado
+      throw error 
     }
 
     originalRequest._retry = true
@@ -44,15 +44,14 @@ api.interceptors.response.use(
 
     if (!refreshToken) {
       useAuthStore.getState().logout()
-      throw error // ✅ Cambiado
+      throw error 
     }
 
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         queue.push((token) => {
           if (!token) {
-            reject(error) // ✅ Aquí se mantiene reject porque está dentro del executor del Promise
-            return
+            reject(error) 
           }
 
           originalRequest.headers = originalRequest.headers ?? {}
@@ -84,7 +83,7 @@ api.interceptors.response.use(
       queue.forEach((cb) => cb(null)) 
       queue = []
       
-      throw err // ✅ Cambiado
+      throw err 
     } finally {
       isRefreshing = false
     }

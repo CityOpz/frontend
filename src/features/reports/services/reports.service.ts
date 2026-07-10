@@ -1,4 +1,5 @@
 import { api } from "@/shared/lib/api/axios"
+import type { AxiosResponse } from "axios"
 import type { MapReport, MapReportStatus } from "../types/map-report.types"
 import type {
   ApiReport,
@@ -117,13 +118,33 @@ export const reportsService = {
   },
 
   async listMapReports() {
-    const response = await reportsService.list()
-    const details = await Promise.all(
-      response.data.results.map((report) => reportsService.detail(report.id)),
+    const reports: ApiReport[] = []
+    let url: string | null = "/reports/all/"
+
+    while (url) {
+      const response: AxiosResponse<PaginatedReportsResponse> = await api.get(url)
+      reports.push(...response.data.results)
+      url = response.data.next
+    }
+
+    const reportsWithLocation = await Promise.all(
+      reports.map(async (report) => {
+        if (report.latitude !== undefined && report.longitude !== undefined) {
+          return report
+        }
+
+        try {
+          const response = await reportsService.detail(report.id)
+          return response.data
+        } catch {
+          // Un detalle no disponible no debe impedir mostrar el resto del mapa.
+          return null
+        }
+      }),
     )
 
-    return details
-      .map(({ data }) => mapApiReportToMapReport(data))
+    return reportsWithLocation
+      .map((report) => (report ? mapApiReportToMapReport(report) : null))
       .filter((report): report is MapReport => report !== null)
   },
 }
