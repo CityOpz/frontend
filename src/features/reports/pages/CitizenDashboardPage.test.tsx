@@ -1,9 +1,19 @@
+import type { ReactNode } from "react"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen, waitFor, fireEvent } from "@testing-library/react"
 import CitizenDashboardPage from "./CitizenDashboardPage"
 import { useAuthStore } from "@/features/auth/store/auth.store"
 import { reportsService } from "../services/reports.service"
 import type { ApiReport } from "../types/report-api.types"
+
+type AuthStoreSelector = Parameters<typeof useAuthStore>[0]
+
+interface LinkProps {
+  children: ReactNode
+  to: string
+  className?: string
+  [key: string]: unknown
+}
 
 vi.mock("@/features/auth/store/auth.store")
 vi.mock("../services/reports.service")
@@ -14,10 +24,9 @@ vi.mock("@/shared/theme/components/ThemeToggle", () => ({
   default: () => <div data-testid="theme-toggle">Theme Toggle</div>,
 }))
 
-// Mock completo de react-router
 const mockNavigate = vi.fn()
 vi.mock("react-router", () => ({
-  Link: ({ children, to, className, ...props }: any) => (
+  Link: ({ children, to, className, ...props }: LinkProps) => (
     <a href={to} className={className} {...props}>
       {children}
     </a>
@@ -77,13 +86,13 @@ const getMockStore = (user = mockUser) => ({
 describe("CitizenDashboardPage", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(useAuthStore).mockImplementation((selector: any) => selector(getMockStore()))
+    vi.mocked(useAuthStore).mockImplementation((selector: AuthStoreSelector) => selector(getMockStore()))
   })
 
   it("renders user information", async () => {
     vi.mocked(reportsService.listCitizenReports).mockResolvedValue([])
     render(<CitizenDashboardPage />)
-    
+
     await waitFor(() => {
       expect(screen.getByText("John Doe")).toBeInTheDocument()
     })
@@ -92,7 +101,7 @@ describe("CitizenDashboardPage", () => {
   it("renders page title and description", async () => {
     vi.mocked(reportsService.listCitizenReports).mockResolvedValue([])
     render(<CitizenDashboardPage />)
-    
+
     await waitFor(() => {
       expect(screen.getByText("Mis Reportes Creados")).toBeInTheDocument()
     })
@@ -101,7 +110,7 @@ describe("CitizenDashboardPage", () => {
   it("renders navigation items", async () => {
     vi.mocked(reportsService.listCitizenReports).mockResolvedValue([])
     render(<CitizenDashboardPage />)
-    
+
     await waitFor(() => {
       expect(screen.getByText("Mis Reportes")).toBeInTheDocument()
       expect(screen.getByText("Nuevo Reporte")).toBeInTheDocument()
@@ -120,7 +129,7 @@ describe("CitizenDashboardPage", () => {
   it("displays reports list after loading", async () => {
     vi.mocked(reportsService.listCitizenReports).mockResolvedValue(mockReports)
     render(<CitizenDashboardPage />)
-    
+
     await waitFor(() => {
       expect(screen.getByText("Reporte 1")).toBeInTheDocument()
       expect(screen.getByText("Reporte 2")).toBeInTheDocument()
@@ -131,7 +140,7 @@ describe("CitizenDashboardPage", () => {
   it("displays empty state when no reports", async () => {
     vi.mocked(reportsService.listCitizenReports).mockResolvedValue([])
     render(<CitizenDashboardPage />)
-    
+
     await waitFor(() => {
       expect(screen.getByText(/Aún no has creado ningún reporte/)).toBeInTheDocument()
     })
@@ -140,7 +149,7 @@ describe("CitizenDashboardPage", () => {
   it("displays error state when API fails", async () => {
     vi.mocked(reportsService.listCitizenReports).mockRejectedValue(new Error("API Error"))
     render(<CitizenDashboardPage />)
-    
+
     await waitFor(() => {
       expect(screen.getByText("No se pudieron cargar tus reportes.")).toBeInTheDocument()
     })
@@ -149,7 +158,7 @@ describe("CitizenDashboardPage", () => {
   it("displays report status badges correctly", async () => {
     vi.mocked(reportsService.listCitizenReports).mockResolvedValue(mockReports)
     render(<CitizenDashboardPage />)
-    
+
     await waitFor(() => {
       expect(screen.getByText("Pendiente")).toBeInTheDocument()
       expect(screen.getByText("En revisión")).toBeInTheDocument()
@@ -160,7 +169,7 @@ describe("CitizenDashboardPage", () => {
   it("displays 'Sin ubicación' when coordinates not available", async () => {
     vi.mocked(reportsService.listCitizenReports).mockResolvedValue([mockReports[1]])
     render(<CitizenDashboardPage />)
-    
+
     await waitFor(() => {
       expect(screen.getByText("Sin ubicación")).toBeInTheDocument()
     })
@@ -169,14 +178,14 @@ describe("CitizenDashboardPage", () => {
   it("toggles profile menu when clicking profile button", async () => {
     vi.mocked(reportsService.listCitizenReports).mockResolvedValue([])
     render(<CitizenDashboardPage />)
-    
+
     await waitFor(() => {
       expect(screen.getByText("John Doe")).toBeInTheDocument()
     })
 
     const profileButton = screen.getByLabelText("Abrir opciones de foto de perfil")
     fireEvent.click(profileButton)
-    
+
     expect(screen.getByText(/Subir foto|Cambiar foto/)).toBeInTheDocument()
     expect(screen.getByText("Cerrar sesión")).toBeInTheDocument()
   })
@@ -184,7 +193,7 @@ describe("CitizenDashboardPage", () => {
   it("displays user initials when no profile photo", async () => {
     vi.mocked(reportsService.listCitizenReports).mockResolvedValue([])
     render(<CitizenDashboardPage />)
-    
+
     await waitFor(() => {
       expect(screen.getByText("JD")).toBeInTheDocument()
     })

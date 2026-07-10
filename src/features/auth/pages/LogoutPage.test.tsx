@@ -4,6 +4,8 @@ import LogoutPage from "./LogoutPage"
 import { useAuthStore } from "../store/auth.store"
 import { useNavigate } from "react-router"
 
+type AuthStoreSelector = Parameters<typeof useAuthStore>[0]
+
 vi.mock("react-router", () => ({
   useNavigate: vi.fn(),
 }))
@@ -27,7 +29,7 @@ const mockStore = {
 describe("LogoutPage", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(useAuthStore).mockImplementation((selector: any) => selector(mockStore))
+    vi.mocked(useAuthStore).mockImplementation((selector: AuthStoreSelector) => selector(mockStore))
     vi.mocked(useNavigate).mockReturnValue(mockNavigate)
   })
 

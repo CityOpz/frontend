@@ -3,6 +3,8 @@ import { render, screen } from "@testing-library/react"
 import DashboardPage from "./DashboardPage"
 import { useAuthStore } from "@/features/auth/store/auth.store"
 
+type AuthStoreSelector = Parameters<typeof useAuthStore>[0]
+
 vi.mock("@/features/auth/store/auth.store")
 vi.mock("./AdminDashboardPage", () => ({
   default: () => <div data-testid="admin-dashboard">Admin Dashboard</div>,
@@ -12,7 +14,7 @@ vi.mock("@/features/reports/pages/CitizenDashboardPage", () => ({
 }))
 
 const mockStore = {
-  user: null,
+  user: null as { id: number; role: string; first_name: string; last_name: string; email: string } | null,
   access: null,
   refresh: null,
   isAuthenticated: false,
@@ -25,7 +27,7 @@ const mockStore = {
 describe("DashboardPage", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(useAuthStore).mockImplementation((selector: any) => selector(mockStore))
+    vi.mocked(useAuthStore).mockImplementation((selector: AuthStoreSelector) => selector(mockStore))
   })
 
   it("renders AdminDashboardPage when user role is ADMIN", () => {
