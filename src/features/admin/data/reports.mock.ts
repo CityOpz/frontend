@@ -26,7 +26,7 @@ export const mockReports: Report[] = [
     id: "REP-004",
     title: "Semáforo intermitente en avenida principal",
     category: "Movilidad",
-    status: "En revisión",
+    status: "En reparación",
     coordinates: { latitude: 4.6981, longitude: -74.0909 },
   },
   {
