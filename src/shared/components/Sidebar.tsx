@@ -3,9 +3,10 @@ import { Link } from "react-router"
 import { Camera, ChevronDown, ImagePlus, LogOut, Trash2 } from "lucide-react"
 import { useAuthStore } from "@/features/auth/store/auth.store"
 
+// ✅ CORREGIDO: Cambiar el tipo de icon para aceptar iconos de Lucide
 interface NavItem {
   label: string
-  icon: React.ComponentType<{ className?: string; "aria-hidden"?: string }>
+  icon: React.ElementType  // ✅ Tipo correcto sin any
   path?: string
   active?: boolean
 }
