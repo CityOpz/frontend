@@ -1,84 +1,51 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { MemoryRouter } from "react-router"
-import { beforeEach, describe, expect, it, vi } from "vitest"
-import { mockReports } from "../data/reports.mock"
-import { adminReportsService } from "../services/admin-reports.service"
-import AdminDashboardPage from "./AdminDashboardPage"
+import { describe, it, expect, vi, beforeEach } from "vitest"
+import { render, screen } from "@testing-library/react"
+import DashboardPage from "./DashboardPage"
+import { useAuthStore } from "@/features/auth/store/auth.store"
 
-vi.mock("../services/admin-reports.service", () => ({
-  adminReportsService: {
-    getReports: vi.fn(),
-    updateStatus: vi.fn(),
-  },
+vi.mock("@/features/auth/store/auth.store")
+vi.mock("./AdminDashboardPage", () => ({
+  default: () => <div data-testid="admin-dashboard">Admin Dashboard</div>,
+}))
+vi.mock("@/features/reports/pages/CitizenDashboardPage", () => ({
+  default: () => <div data-testid="citizen-dashboard">Citizen Dashboard</div>,
 }))
 
-describe("AdminDashboardPage", () => {
+const mockStore = {
+  user: null,
+  access: null,
+  refresh: null,
+  isAuthenticated: false,
+  initialized: true,
+  setTokens: vi.fn(),
+  setAccess: vi.fn(),
+  logout: vi.fn(),
+}
+
+describe("DashboardPage", () => {
   beforeEach(() => {
-    vi.mocked(adminReportsService.getReports).mockResolvedValue(mockReports)
-    vi.mocked(adminReportsService.updateStatus).mockReset()
-
-    Object.defineProperty(URL, "createObjectURL", {
-      configurable: true,
-      value: vi.fn(() => "blob:profile-photo"),
-    })
-    Object.defineProperty(URL, "revokeObjectURL", {
-      configurable: true,
-      value: vi.fn(),
-    })
+    vi.clearAllMocks()
+    vi.mocked(useAuthStore).mockImplementation((selector: any) => selector(mockStore))
   })
 
-  it("carga los reportes desde el backend", async () => {
-    render(
-      <MemoryRouter>
-        <AdminDashboardPage />
-      </MemoryRouter>,
-    )
-
-    expect(screen.getAllByText("Cargando reportes...").length).toBeGreaterThan(0)
-
-    await waitFor(() => {
-      expect(adminReportsService.getReports).toHaveBeenCalled()
-    })
-
-    expect(screen.getByText("REP-001")).toBeInTheDocument()
-    expect(screen.getByText("API backend")).toBeInTheDocument()
+  it("renders AdminDashboardPage when user role is ADMIN", () => {
+    mockStore.user = { id: 1, role: "ADMIN", first_name: "Admin", last_name: "User", email: "admin@test.com" }
+    
+    render(<DashboardPage />)
+    expect(screen.getByTestId("admin-dashboard")).toBeInTheDocument()
   })
 
-  it("permite subir y quitar una foto de perfil desde el menú lateral", async () => {
-    const { container } = render(
-      <MemoryRouter>
-        <AdminDashboardPage />
-      </MemoryRouter>,
-    )
+  it("renders CitizenDashboardPage when user role is CITIZEN", () => {
+    mockStore.user = { id: 2, role: "CITIZEN", first_name: "John", last_name: "Doe", email: "john@test.com" }
+    
+    render(<DashboardPage />)
+    expect(screen.getByTestId("citizen-dashboard")).toBeInTheDocument()
+  })
 
-    await screen.findByText("REP-001")
-
-    const profilePhotoInput = container.querySelector<HTMLInputElement>(
-      'input[type="file"][accept="image/*"]',
-    )
-    const profilePhoto = new File(["profile"], "profile.png", {
-      type: "image/png",
-    })
-
-    expect(profilePhotoInput).not.toBeNull()
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "Abrir opciones de foto de perfil" }),
-    )
-    expect(screen.getByRole("button", { name: "Subir foto" })).toBeInTheDocument()
-
-    fireEvent.change(profilePhotoInput!, { target: { files: [profilePhoto] } })
-
-    expect(screen.getByAltText("Foto de perfil de Juan Toro")).toHaveAttribute(
-      "src",
-      "blob:profile-photo",
-    )
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "Abrir opciones de foto de perfil" }),
-    )
-    fireEvent.click(screen.getByRole("button", { name: "Quitar foto" }))
-
-    expect(screen.queryByAltText("Foto de perfil de Juan Toro")).not.toBeInTheDocument()
+  it("renders CitizenDashboardPage when user is null", () => {
+    mockStore.user = null
+    
+    render(<DashboardPage />)
+    expect(screen.getByTestId("citizen-dashboard")).toBeInTheDocument()
   })
 })

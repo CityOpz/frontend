@@ -8,26 +8,26 @@ vi.mock("react-router", () => ({
   useNavigate: vi.fn(),
 }))
 
-vi.mock("../store/auth.store", () => ({
-  useAuthStore: vi.fn(),
-}))
+vi.mock("../store/auth.store")
+
+const mockLogout = vi.fn()
+const mockNavigate = vi.fn()
+
+const mockStore = {
+  user: null,
+  access: null,
+  refresh: null,
+  isAuthenticated: false,
+  initialized: true,
+  setTokens: vi.fn(),
+  setAccess: vi.fn(),
+  logout: mockLogout,
+}
 
 describe("LogoutPage", () => {
-  const mockLogout = vi.fn()
-  const mockNavigate = vi.fn()
-
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(useAuthStore).mockReturnValue({
-      logout: mockLogout,
-      access: null,
-      refresh: null,
-      user: null,
-      isAuthenticated: false,
-      initialized: true,
-      setTokens: vi.fn(),
-      setAccess: vi.fn(),
-    })
+    vi.mocked(useAuthStore).mockImplementation((selector: any) => selector(mockStore))
     vi.mocked(useNavigate).mockReturnValue(mockNavigate)
   })
 

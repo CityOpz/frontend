@@ -17,49 +17,55 @@ describe("DashboardPage", () => {
   })
 
   it("renders AdminDashboardPage when user role is ADMIN", () => {
-    vi.mocked(useAuthStore).mockReturnValue({
-      user: { id: 1, role: "ADMIN", first_name: "Admin", last_name: "User", email: "admin@test.com" },
-      access: null,
-      refresh: null,
-      isAuthenticated: true,
-      initialized: true,
-      setTokens: vi.fn(),
-      setAccess: vi.fn(),
-      logout: vi.fn(),
-    })
-
+    vi.mocked(useAuthStore).mockImplementation((selector: any) =>
+      selector({
+        user: { id: 1, role: "ADMIN", first_name: "Admin", last_name: "User", email: "admin@test.com" },
+        access: null,
+        refresh: null,
+        isAuthenticated: true,
+        initialized: true,
+        setTokens: vi.fn(),
+        setAccess: vi.fn(),
+        logout: vi.fn(),
+      })
+    )
+    
     render(<DashboardPage />)
     expect(screen.getByTestId("admin-dashboard")).toBeInTheDocument()
   })
 
   it("renders CitizenDashboardPage when user role is CITIZEN", () => {
-    vi.mocked(useAuthStore).mockReturnValue({
-      user: { id: 2, role: "CITIZEN", first_name: "John", last_name: "Doe", email: "john@test.com" },
-      access: null,
-      refresh: null,
-      isAuthenticated: true,
-      initialized: true,
-      setTokens: vi.fn(),
-      setAccess: vi.fn(),
-      logout: vi.fn(),
-    })
-
+    vi.mocked(useAuthStore).mockImplementation((selector: any) =>
+      selector({
+        user: { id: 2, role: "CITIZEN", first_name: "John", last_name: "Doe", email: "john@test.com" },
+        access: null,
+        refresh: null,
+        isAuthenticated: true,
+        initialized: true,
+        setTokens: vi.fn(),
+        setAccess: vi.fn(),
+        logout: vi.fn(),
+      })
+    )
+    
     render(<DashboardPage />)
     expect(screen.getByTestId("citizen-dashboard")).toBeInTheDocument()
   })
 
   it("renders CitizenDashboardPage when user is null", () => {
-    vi.mocked(useAuthStore).mockReturnValue({
-      user: null,
-      access: null,
-      refresh: null,
-      isAuthenticated: false,
-      initialized: true,
-      setTokens: vi.fn(),
-      setAccess: vi.fn(),
-      logout: vi.fn(),
-    })
-
+    vi.mocked(useAuthStore).mockImplementation((selector: any) =>
+      selector({
+        user: null,
+        access: null,
+        refresh: null,
+        isAuthenticated: false,
+        initialized: true,
+        setTokens: vi.fn(),
+        setAccess: vi.fn(),
+        logout: vi.fn(),
+      })
+    )
+    
     render(<DashboardPage />)
     expect(screen.getByTestId("citizen-dashboard")).toBeInTheDocument()
   })
