@@ -123,23 +123,7 @@ export function useRegisterForm() {
     setSubmitError(null)
 
     try {
-      await authService.register({
-        username: form.username,
-        email: form.email.toLowerCase(),
-        first_name: form.firstName,
-        last_name: form.lastName,
-        password: form.password,
-      })
-
-      const loginRes = await authService.login({
-        username: form.username,
-        password: form.password,
-      })
-
-      const { access, refresh } = loginRes.data
-
-      setTokens(access, refresh)
-
+      await registerAndLogin(form, setTokens)
       navigate("/dashboard", { replace: true })
     } catch (err) {
       const error = err as AxiosError<BackendError>
@@ -150,34 +134,12 @@ export function useRegisterForm() {
         return
       }
 
-      const newErrors: Partial<FormErrors> = {}
-
-      if (backendErrors.username) {
-        newErrors.username = Array.isArray(backendErrors.username)
-          ? backendErrors.username[0]
-          : backendErrors.username
-      }
-
-      if (backendErrors.first_name) {
-        newErrors.firstName = getBackendMessage(backendErrors.first_name)
-      }
-
-      if (backendErrors.last_name) {
-        newErrors.lastName = getBackendMessage(backendErrors.last_name)
-      }
-
-      if (backendErrors.email) {
-        newErrors.email = getBackendMessage(backendErrors.email)
-      }
-
-      if (backendErrors.password) {
-        newErrors.password = getBackendMessage(backendErrors.password)
-      }
+      const newErrors = mapBackendErrors(backendErrors)
 
       setErrors((prev) => ({ ...prev, ...newErrors }))
 
       const generalError =
-        getBackendMessage(backendErrors.detail) ||
+        getBackendMessage(backendErrors.detail) ??
         getBackendMessage(backendErrors.non_field_errors)
 
       if (generalError) {
@@ -208,4 +170,51 @@ function getBackendMessage(value?: string | string[]) {
   }
 
   return value
+}
+
+function mapBackendErrors(backendErrors: BackendError): Partial<FormErrors> {
+  const newErrors: Partial<FormErrors> = {}
+
+  if (backendErrors.username) {
+    newErrors.username = getBackendMessage(backendErrors.username)
+  }
+
+  if (backendErrors.first_name) {
+    newErrors.firstName = getBackendMessage(backendErrors.first_name)
+  }
+
+  if (backendErrors.last_name) {
+    newErrors.lastName = getBackendMessage(backendErrors.last_name)
+  }
+
+  if (backendErrors.email) {
+    newErrors.email = getBackendMessage(backendErrors.email)
+  }
+
+  if (backendErrors.password) {
+    newErrors.password = getBackendMessage(backendErrors.password)
+  }
+
+  return newErrors
+}
+
+async function registerAndLogin(
+  form: RegisterFormState,
+  setTokens: (access: string, refresh: string) => void,
+) {
+  await authService.register({
+    username: form.username,
+    email: form.email.toLowerCase(),
+    first_name: form.firstName,
+    last_name: form.lastName,
+    password: form.password,
+  })
+
+  const loginRes = await authService.login({
+    username: form.username,
+    password: form.password,
+  })
+
+  const { access, refresh } = loginRes.data
+  setTokens(access, refresh)
 }
