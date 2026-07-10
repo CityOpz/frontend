@@ -191,4 +191,21 @@ describe("CreateReportForm", () => {
       )
     })
   })
+  
+  it("permite limpiar la foto", () => {
+    render(<CreateReportForm />)
+
+    const input = document.getElementById("report-photo")
+
+    fireEvent.change(input!, {
+      target: {
+        files: [],
+      },
+    })
+
+    expect(
+      screen.getByText("Adjuntar imagen opcional")
+    ).toBeInTheDocument()
+  })
+  
 })
