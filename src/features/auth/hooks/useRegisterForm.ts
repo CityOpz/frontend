@@ -3,7 +3,7 @@ import { useNavigate } from "react-router"
 import type { AxiosError } from "axios"
 import { authService } from "../services/auth.service"
 import { useAuthStore } from "../store/auth.store"
-import type { FormErrors, RegisterFormState } from "../types/auth.types"
+import type { FormErrors, RegisterFormState, UserInfo } from "../types/auth.types"
 import {
   validateUsername,
   validateEmail,
@@ -12,7 +12,6 @@ import {
   validateFirstName,
   validateLastName,
 } from "../utils/validators"
-import type { UserInfo } from "../types/auth.types"
 
 type BackendError = Partial<
   Record<keyof FormErrors | "first_name" | "last_name" | "detail" | "non_field_errors", string | string[]>

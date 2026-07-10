@@ -61,7 +61,8 @@ const coordinateFormatter = new Intl.NumberFormat("es-CO", {
 export default function ReportDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  useDocumentTitle(`Reporte ${id ? `REP-${id.padStart(3, "0")}` : ""}`)
+  const reportTitle = id ? `REP-${id.padStart(3, "0")}` : ""
+  useDocumentTitle(`Reporte ${reportTitle}`)
 
   const [report, setReport] = useState<ApiReport | null>(null)
   const [isLoading, setIsLoading] = useState(true)
