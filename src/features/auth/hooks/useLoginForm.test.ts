@@ -3,6 +3,7 @@ import { renderHook, act } from "@testing-library/react"
 import { createElement, type ReactNode } from "react"
 import { MemoryRouter } from "react-router"
 import type { AxiosResponse, AxiosError } from "axios"
+import type {  RegisterResponse } from "../types/auth.types"
 import { useRegisterForm } from "./useRegisterForm"
 import { authService } from "../services/auth.service"
 import { useAuthStore } from "../store/auth.store"
@@ -80,7 +81,20 @@ describe("useRegisterForm", () => {
     const mockRegister = vi.mocked(authService.register)
     const mockLogin = vi.mocked(authService.login)
     
-    const registerResponse = {} as AxiosResponse<void>
+    const registerResponse = {
+      data: {
+        id: 1,
+        username: "johndoe",
+        email: "john@example.com",
+        first_name: "John",
+        last_name: "Doe",
+      },
+      status: 201,
+      statusText: "Created",
+      headers: {},
+      config: {} as AxiosResponse<RegisterResponse>["config"],
+    } as AxiosResponse<RegisterResponse>
+    
     const loginResponse = {
       data: { access: "access123", refresh: "refresh456" },
     } as AxiosResponse<LoginResponse>

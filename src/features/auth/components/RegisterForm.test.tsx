@@ -279,9 +279,11 @@ describe("RegisterForm", () => {
   })
 
   it("llama a validateField cuando se hace blur en confirmPassword", () => {
-    render(<RegisterForm />)
+    renderWithRouter(<RegisterForm />)
+
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     fireEvent.blur(confirmPasswordInput)
+
     expect(mockValidateField).toHaveBeenCalledWith("confirmPassword", "")
   })
 })
