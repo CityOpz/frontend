@@ -7,7 +7,7 @@ import type {
 
 export const authService = {
   login: (data: { username: string; password: string }) =>
-    api.post<AuthTokens>("/token/", data),
+    api.post<AuthTokens>("/users/token/", data),
 
   register: (data: RegisterPayload) =>
     api.post<RegisterResponse>("/users/register/", data),

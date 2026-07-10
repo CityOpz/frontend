@@ -1,11 +1,11 @@
 import type { RouteObject } from "react-router"
 import { requireAuth } from "@/shared/lib/router-helpers"
-import AdminDashboardPage from "./pages/AdminDashboardPage"
+import DashboardPage from "./pages/DashboardPage"
 
 export const adminRoutes: RouteObject[] = [
   {
     path: "/dashboard",
-    Component: AdminDashboardPage,
+    Component: DashboardPage,
     loader: () => requireAuth(),
   },
 ]

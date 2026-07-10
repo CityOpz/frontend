@@ -200,7 +200,7 @@ function mapBackendErrors(backendErrors: BackendError): Partial<FormErrors> {
 
 async function registerAndLogin(
   form: RegisterFormState,
-  setTokens: (access: string, refresh: string) => void,
+  setTokens: (access: string, refresh: string, user?: any) => void,
 ) {
   await authService.register({
     username: form.username,
@@ -215,6 +215,6 @@ async function registerAndLogin(
     password: form.password,
   })
 
-  const { access, refresh } = loginRes.data
-  setTokens(access, refresh)
+  const { access, refresh, user } = loginRes.data
+  setTokens(access, refresh, user)
 }

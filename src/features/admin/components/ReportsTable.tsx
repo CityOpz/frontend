@@ -1,4 +1,5 @@
 import { MapPin } from "lucide-react"
+import { Link } from "react-router"
 import { Badge } from "@/shared/components/ui/badge"
 import {
   Table,
@@ -51,11 +52,15 @@ export function ReportsTable({
       <TableBody>
         {reports.map((report) => (
           <TableRow key={report.id}>
-            <TableCell className="font-semibold text-primary">
-              {report.id}
+            <TableCell className="font-semibold">
+              <Link to={`/reports/${report.id}`} className="text-primary hover:underline hover:text-primary/80">
+                {report.id}
+              </Link>
             </TableCell>
             <TableCell className="min-w-72 whitespace-normal font-medium text-foreground">
-              {report.title}
+              <Link to={`/reports/${report.id}`} className="hover:underline hover:text-primary">
+                {report.title}
+              </Link>
             </TableCell>
             <TableCell className="text-muted-foreground">
               {report.category}

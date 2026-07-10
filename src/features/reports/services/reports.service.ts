@@ -108,6 +108,14 @@ export const reportsService = {
       update_detail: updateDetail,
     }),
 
+  async listCitizenReports(): Promise<ApiReport[]> {
+    const response = await api.get<PaginatedReportsResponse>("/reports/all/?my_reports=true")
+    const details = await Promise.all(
+      response.data.results.map((report) => reportsService.detail(report.id)),
+    )
+    return details.map(({ data }) => data)
+  },
+
   async listMapReports() {
     const response = await reportsService.list()
     const details = await Promise.all(

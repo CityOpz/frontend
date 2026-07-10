@@ -47,8 +47,8 @@ export function useLoginForm() {
         password: form.password,
       })
 
-      const { access, refresh } = res.data
-      setTokens(access, refresh)
+      const { access, refresh, user } = res.data
+      setTokens(access, refresh, user)
 
       navigate("/dashboard", { replace: true })
     } catch (err) {

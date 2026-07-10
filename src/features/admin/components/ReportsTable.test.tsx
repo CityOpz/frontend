@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react"
+import { MemoryRouter } from "react-router"
 import { describe, expect, it, vi } from "vitest"
 import { ReportsTable } from "./ReportsTable"
 import type { Report } from "../types/report.types"
@@ -15,7 +16,9 @@ const pendingReport: Report = {
 describe("ReportsTable", () => {
   it("renderiza los reportes y muestra el estado Pendiente", () => {
     render(
-      <ReportsTable reports={mockReports} onStatusChange={vi.fn()} />,
+      <MemoryRouter>
+        <ReportsTable reports={mockReports} onStatusChange={vi.fn()} />
+      </MemoryRouter>,
     )
 
     expect(screen.getByText("REP-001")).toBeInTheDocument()
@@ -26,10 +29,12 @@ describe("ReportsTable", () => {
     const onStatusChange = vi.fn()
 
     render(
-      <ReportsTable
-        reports={[pendingReport]}
-        onStatusChange={onStatusChange}
-      />,
+      <MemoryRouter>
+        <ReportsTable
+          reports={[pendingReport]}
+          onStatusChange={onStatusChange}
+        />
+      </MemoryRouter>,
     )
 
     const selector = screen.getByLabelText("Cambiar estado del reporte REP-TEST")
@@ -45,10 +50,12 @@ describe("ReportsTable", () => {
 
   it("bloquea el selector cuando el reporte está resuelto", () => {
     render(
-      <ReportsTable
-        reports={[{ ...pendingReport, status: "Resuelto" }]}
-        onStatusChange={vi.fn()}
-      />,
+      <MemoryRouter>
+        <ReportsTable
+          reports={[{ ...pendingReport, status: "Resuelto" }]}
+          onStatusChange={vi.fn()}
+        />
+      </MemoryRouter>,
     )
 
     expect(
@@ -58,11 +65,13 @@ describe("ReportsTable", () => {
 
   it("bloquea el selector del reporte que se está actualizando", () => {
     render(
-      <ReportsTable
-        reports={[pendingReport]}
-        updatingReportId="REP-TEST"
-        onStatusChange={vi.fn()}
-      />,
+      <MemoryRouter>
+        <ReportsTable
+          reports={[pendingReport]}
+          updatingReportId="REP-TEST"
+          onStatusChange={vi.fn()}
+        />
+      </MemoryRouter>,
     )
 
     expect(

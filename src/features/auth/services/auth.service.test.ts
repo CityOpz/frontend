@@ -20,7 +20,7 @@ describe("authService", () => {
 
     await authService.login({ username: "user", password: "pass" })
 
-    expect(api.post).toHaveBeenCalledWith("/token/", {
+    expect(api.post).toHaveBeenCalledWith("/users/token/", {
       username: "user",
       password: "pass",
     })

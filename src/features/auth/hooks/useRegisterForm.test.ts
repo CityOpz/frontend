@@ -45,7 +45,7 @@ interface AuthStoreState {
   refresh: string | null
   isAuthenticated: boolean
   initialized: boolean
-  setTokens: (access: string, refresh: string) => void
+  setTokens: (access: string, refresh: string, user?: any) => void
   setAccess: (access: string) => void
   logout: () => void
 }
@@ -238,11 +238,12 @@ describe("useRegisterForm", () => {
     })
 
     it("registro exitoso: registra, hace login y navega", async () => {
+      const fakeUser = { id: 2, role: "CITIZEN", first_name: "Ana", last_name: "Gómez", email: "ana@test.com" }
       vi.mocked(authService.register).mockResolvedValue(
         {} as Awaited<ReturnType<typeof authService.register>>,
       )
       vi.mocked(authService.login).mockResolvedValue({
-        data: { access: "tok-a", refresh: "tok-r" },
+        data: { access: "tok-a", refresh: "tok-r", user: fakeUser },
       } as Awaited<ReturnType<typeof authService.login>>)
 
       const { result } = renderHook(() => useRegisterForm())
@@ -263,7 +264,7 @@ describe("useRegisterForm", () => {
         username: "anagomez",
         password: "Secreta123",
       })
-      expect(setTokensMock).toHaveBeenCalledWith("tok-a", "tok-r")
+      expect(setTokensMock).toHaveBeenCalledWith("tok-a", "tok-r", fakeUser)
       expect(navigateMock).toHaveBeenCalledWith("/dashboard", { replace: true })
       expect(result.current.loading).toBe(false)
       expect(result.current.submitError).toBeNull()

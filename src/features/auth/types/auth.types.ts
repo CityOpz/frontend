@@ -43,3 +43,11 @@ export interface FormErrors {
   password?: string
   confirmPassword?: string
 }
+
+export interface UserInfo {
+  id: number
+  role: "CITIZEN" | "ADMIN"
+  first_name: string
+  last_name: string
+  email: string
+}

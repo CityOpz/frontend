@@ -7,11 +7,11 @@ import {
   LayoutDashboard,
   LogOut,
   Map,
+  MapPin,
   Menu,
+  Plus,
   Search,
-  Settings,
   Trash2,
-  Users,
 } from "lucide-react"
 import { useEffect, useRef, useState, type ChangeEventHandler } from "react"
 import { Link } from "react-router"
@@ -19,32 +19,54 @@ import useDocumentTitle from "@/shared/hooks/useDocumentTitle"
 import { Badge } from "@/shared/components/ui/badge"
 import { Button } from "@/shared/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/shared/components/ui/table"
 import ThemeToggle from "@/shared/theme/components/ThemeToggle"
 import { useAuthStore } from "@/features/auth/store/auth.store"
-import { ReportsTable } from "../components/ReportsTable"
-import { adminReportsService } from "../services/admin-reports.service"
-import type { Report, ReportStatus } from "../types/report.types"
-import { canTransitionReportStatus } from "../utils/report-status"
+import { reportsService } from "../services/reports.service"
+import type { ApiReport } from "../types/report-api.types"
 
 const navItems = [
-  { label: "Resumen", icon: LayoutDashboard, path: "/dashboard" },
-  { label: "Reportes", icon: ClipboardList, active: true, path: "/dashboard" },
-  { label: "Mapa", icon: Map, path: "/map" },
-  { label: "Usuarios", icon: Users },
-  { label: "Configuración", icon: Settings },
+  { label: "Mis Reportes", icon: ClipboardList, active: true, path: "/dashboard" },
+  { label: "Nuevo Reporte", icon: Plus, path: "/reports/new" },
+  { label: "Mapa de Reportes", icon: Map, path: "/map" },
 ]
 
-export default function AdminDashboardPage() {
-  useDocumentTitle("Dashboard administrativo")
-  const user = useAuthStore((s) => s.user)
-  const userFullName = user ? `${user.first_name} ${user.last_name}` : "Juan Toro"
-  const userRole = user?.role === "ADMIN" ? "Administrador" : user?.role === "CITIZEN" ? "Ciudadano" : "Administrador"
-  const userInitials = user ? `${user.first_name[0] ?? ""}${user.last_name[0] ?? ""}`.toUpperCase() || "US" : "JT"
+const API_STATUS_TO_LABEL: Record<string, string> = {
+  PENDING: "Pendiente",
+  IN_REVIEW: "En revisión",
+  IN_REPAIR: "En reparación",
+  RESOLVED: "Resuelto",
+}
 
-  const [reports, setReports] = useState<Report[]>([])
+const statusStyles: Record<string, string> = {
+  PENDING: "border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  IN_REVIEW: "border-blue-500/20 bg-blue-500/10 text-blue-700 dark:text-blue-300",
+  IN_REPAIR: "border-indigo-500/20 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300",
+  RESOLVED: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+}
+
+const coordinateFormatter = new Intl.NumberFormat("es-CO", {
+  minimumFractionDigits: 4,
+  maximumFractionDigits: 4,
+})
+
+export default function CitizenDashboardPage() {
+  useDocumentTitle("Mi Panel Ciudadano")
+  const user = useAuthStore((s) => s.user)
+  const userFullName = user ? `${user.first_name} ${user.last_name}` : "Ciudadano"
+  const userRole = "Ciudadano"
+  const userInitials = user ? `${user.first_name[0] ?? ""}${user.last_name[0] ?? ""}`.toUpperCase() || "US" : "CI"
+
+  const [reports, setReports] = useState<ApiReport[]>([])
   const [isLoadingReports, setIsLoadingReports] = useState(true)
   const [reportsError, setReportsError] = useState<string | null>(null)
-  const [updatingReportId, setUpdatingReportId] = useState<string | null>(null)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>()
   const profilePhotoInputRef = useRef<HTMLInputElement>(null)
@@ -57,14 +79,14 @@ export default function AdminDashboardPage() {
       setReportsError(null)
 
       try {
-        const apiReports = await adminReportsService.getReports()
+        const apiReports = await reportsService.listCitizenReports()
 
         if (isMounted) {
           setReports(apiReports)
         }
       } catch {
         if (isMounted) {
-          setReportsError("No se pudieron cargar los reportes.")
+          setReportsError("No se pudieron cargar tus reportes.")
         }
       } finally {
         if (isMounted) {
@@ -87,48 +109,6 @@ export default function AdminDashboardPage() {
       }
     }
   }, [profilePhotoUrl])
-
-  const pendingReports = reports.filter(
-    (report) => report.status === "Pendiente",
-  ).length
-
-  const handleStatusChange = async (reportId: string, nextStatus: ReportStatus) => {
-    const previousReports = reports
-    const currentReport = reports.find((report) => report.id === reportId)
-
-    if (
-      !currentReport ||
-      !canTransitionReportStatus(currentReport.status, nextStatus)
-    ) {
-      return
-    }
-
-    setReportsError(null)
-    setUpdatingReportId(reportId)
-    setReports((currentReports) =>
-      currentReports.map((report) =>
-        report.id === reportId ? { ...report, status: nextStatus } : report,
-      ),
-    )
-
-    try {
-      const updatedReport = await adminReportsService.updateStatus(
-        reportId,
-        nextStatus,
-      )
-
-      setReports((currentReports) =>
-        currentReports.map((report) =>
-          report.id === reportId ? updatedReport : report,
-        ),
-      )
-    } catch {
-      setReports(previousReports)
-      setReportsError("No se pudo actualizar el estado del reporte.")
-    } finally {
-      setUpdatingReportId(null)
-    }
-  }
 
   const handleProfilePhotoChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     const file = event.target.files?.[0]
@@ -155,6 +135,11 @@ export default function AdminDashboardPage() {
     }
   }
 
+  const totalReports = reports.length
+  const pendingReports = reports.filter((r) => r.status === "PENDING").length
+  const inProgressReports = reports.filter((r) => r.status === "IN_REVIEW" || r.status === "IN_REPAIR").length
+  const resolvedReports = reports.filter((r) => r.status === "RESOLVED").length
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 border-r border-sidebar-border bg-sidebar lg:flex lg:flex-col">
@@ -164,13 +149,13 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <p className="text-lg font-black tracking-tight">CityOpz</p>
-            <p className="text-xs text-muted-foreground">Panel administrativo</p>
+            <p className="text-xs text-muted-foreground">Panel Ciudadano</p>
           </div>
         </div>
 
         <nav aria-label="Navegación principal" className="flex-1 space-y-1 p-4">
           <p className="px-3 pb-2 pt-3 text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
-            Gestión
+            Menú
           </p>
           {navItems.map(({ label, icon: Icon, active, path }) => {
             const className = `flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium transition-colors ${
@@ -179,7 +164,7 @@ export default function AdminDashboardPage() {
                 : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             }`
 
-            return path ? (
+            return (
               <Link
                 key={label}
                 aria-current={active ? "page" : undefined}
@@ -189,11 +174,6 @@ export default function AdminDashboardPage() {
                 <Icon aria-hidden="true" className="size-5" />
                 {label}
               </Link>
-            ) : (
-              <button key={label} className={className} type="button">
-                <Icon aria-hidden="true" className="size-5" />
-                {label}
-              </button>
             )
           })}
         </nav>
@@ -286,7 +266,7 @@ export default function AdminDashboardPage() {
           </Button>
           <div className="hidden max-w-sm flex-1 items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 text-muted-foreground md:flex">
             <Search aria-hidden="true" className="size-4" />
-            <span className="text-sm">Buscar en el panel...</span>
+            <span className="text-sm">Buscar en tus reportes...</span>
           </div>
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle />
@@ -300,35 +280,65 @@ export default function AdminDashboardPage() {
           <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <Badge className="mb-3 border-primary/20 bg-primary/10 text-primary">
-                Gestión ciudadana
+                Mis Incidencias
               </Badge>
               <h1 className="text-2xl font-black tracking-tight sm:text-3xl">
-                Reportes ciudadanos
+                Mis Reportes Creados
               </h1>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
-                Consulta y administra las incidencias reportadas por la comunidad.
+                Monitorea el progreso de los reportes que has enviado a la municipalidad.
               </p>
             </div>
-            <div className="rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm">
-              <span className="text-muted-foreground">Pendientes por revisar</span>
-              <strong className="ml-3 text-xl text-foreground">{pendingReports}</strong>
-            </div>
+            <Link
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 active:scale-95"
+              to="/reports/new"
+            >
+              <Plus className="size-4" />
+              Nuevo reporte
+            </Link>
+          </section>
+
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Card className="border-border bg-card">
+              <CardContent className="p-6">
+                <span className="text-sm font-semibold text-muted-foreground">Total reportes</span>
+                <strong className="block text-3xl font-black mt-2 text-foreground">{totalReports}</strong>
+              </CardContent>
+            </Card>
+            <Card className="border-border bg-card">
+              <CardContent className="p-6">
+                <span className="text-sm font-semibold text-muted-foreground">Pendientes</span>
+                <strong className="block text-3xl font-black mt-2 text-amber-500">{pendingReports}</strong>
+              </CardContent>
+            </Card>
+            <Card className="border-border bg-card">
+              <CardContent className="p-6">
+                <span className="text-sm font-semibold text-muted-foreground">En revisión / reparación</span>
+                <strong className="block text-3xl font-black mt-2 text-blue-500">{inProgressReports}</strong>
+              </CardContent>
+            </Card>
+            <Card className="border-border bg-card">
+              <CardContent className="p-6">
+                <span className="text-sm font-semibold text-muted-foreground">Resueltos</span>
+                <strong className="block text-3xl font-black mt-2 text-emerald-500">{resolvedReports}</strong>
+              </CardContent>
+            </Card>
           </section>
 
           <Card padding="none" className="overflow-hidden bg-card">
             <CardHeader className="flex-row items-center justify-between border-b border-border p-5 sm:p-6">
               <div>
                 <h2 className="text-base font-bold text-foreground sm:text-lg">
-                  Todos los reportes
+                  Listado de mis reportes
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {isLoadingReports
                     ? "Cargando reportes..."
-                    : `${reports.length} reportes registrados`}
+                    : `${reports.length} reportes registrados por ti`}
                 </p>
               </div>
               <Badge variant="outline" className="border-border text-muted-foreground">
-                API backend
+                Ciudadano
               </Badge>
             </CardHeader>
             <CardContent className="p-0">
@@ -343,14 +353,80 @@ export default function AdminDashboardPage() {
 
               {isLoadingReports ? (
                 <div className="p-6 text-sm text-muted-foreground">
-                  Cargando reportes...
+                  Cargando tus reportes...
+                </div>
+              ) : reports.length === 0 ? (
+                <div className="p-8 text-center text-sm text-muted-foreground">
+                  Aún no has creado ningún reporte. ¡Haz clic en "Nuevo reporte" para empezar!
                 </div>
               ) : (
-                <ReportsTable
-                  reports={reports}
-                  updatingReportId={updatingReportId}
-                  onStatusChange={handleStatusChange}
-                />
+                <div className="overflow-x-auto">
+                  <Table aria-label="Listado de reportes creados por el ciudadano">
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead>ID</TableHead>
+                        <TableHead>Título</TableHead>
+                        <TableHead>Categoría</TableHead>
+                        <TableHead>Estado</TableHead>
+                        <TableHead>Fecha</TableHead>
+                        <TableHead>Ubicación</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {reports.map((report) => {
+                        const formattedId = `REP-${String(report.id).padStart(3, "0")}`
+                        const categoryLabel = report.category?.name ?? "Sin categoría"
+                        return (
+                          <TableRow key={report.id}>
+                            <TableCell className="font-semibold">
+                              <Link to={`/reports/${report.id}`} className="text-primary hover:underline hover:text-primary/80">
+                                {formattedId}
+                              </Link>
+                            </TableCell>
+                            <TableCell className="min-w-64 whitespace-normal font-medium text-foreground">
+                              <div className="space-y-1">
+                                <Link to={`/reports/${report.id}`} className="hover:underline hover:text-primary block font-semibold">
+                                  {report.title}
+                                </Link>
+                                <p className="text-xs text-muted-foreground font-normal line-clamp-2">
+                                  {report.detail}
+                                </p>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">
+                              {categoryLabel}
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={statusStyles[report.status] || ""}>
+                                {API_STATUS_TO_LABEL[report.status] || report.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground text-xs whitespace-nowrap">
+                              {report.created_at
+                                ? new Date(report.created_at).toLocaleDateString("es-CO", {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  })
+                                : "Sin fecha"}
+                            </TableCell>
+                            <TableCell>
+                              {report.latitude !== undefined && report.longitude !== undefined ? (
+                                <span className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
+                                  <MapPin aria-hidden="true" className="size-3.5 text-primary shrink-0" />
+                                  {coordinateFormatter.format(report.latitude)},{" "}
+                                  {coordinateFormatter.format(report.longitude)}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">Sin ubicación</span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>

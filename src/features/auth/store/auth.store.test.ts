@@ -92,4 +92,19 @@ describe("useAuthStore", () => {
     expect(state.refresh).toBeNull()
     expect(state.isAuthenticated).toBe(false)
   })
+
+  it("setTokens guarda user en store y localStorage", () => {
+    const fakeUser = {
+      id: 12,
+      role: "CITIZEN" as const,
+      first_name: "Ana",
+      last_name: "Gomez",
+      email: "ana@gmail.com",
+    }
+    useAuthStore.getState().setTokens("access123", "refresh456", fakeUser)
+
+    const state = useAuthStore.getState()
+    expect(state.user).toEqual(fakeUser)
+    expect(localStorage.getItem("user_info")).toBe(JSON.stringify(fakeUser))
+  })
 })

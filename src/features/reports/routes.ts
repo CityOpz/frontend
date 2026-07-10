@@ -2,6 +2,7 @@ import type { RouteObject } from "react-router"
 import { requireAuth } from "@/shared/lib/router-helpers"
 import ReportsMapPage from "./pages/ReportsMapPage"
 import CreateReportPage from "./pages/CreateReportPage"
+import ReportDetailPage from "./pages/ReportDetailPage"
 
 export const reportsRoutes: RouteObject[] = [
   {
@@ -12,6 +13,11 @@ export const reportsRoutes: RouteObject[] = [
   {
     path: "/reports/new",
     Component: CreateReportPage,
+    loader: () => requireAuth(),
+  },
+  {
+    path: "/reports/:id",
+    Component: ReportDetailPage,
     loader: () => requireAuth(),
   },
 ]
