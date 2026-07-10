@@ -13,7 +13,7 @@ const pendingReport: Report = {
 }
 
 describe("ReportsTable", () => {
-  it("renderiza los reportes mock y muestra el estado Pendiente", () => {
+  it("renderiza los reportes y muestra el estado Pendiente", () => {
     render(
       <ReportsTable reports={mockReports} onStatusChange={vi.fn()} />,
     )
@@ -47,6 +47,20 @@ describe("ReportsTable", () => {
     render(
       <ReportsTable
         reports={[{ ...pendingReport, status: "Resuelto" }]}
+        onStatusChange={vi.fn()}
+      />,
+    )
+
+    expect(
+      screen.getByLabelText("Cambiar estado del reporte REP-TEST"),
+    ).toBeDisabled()
+  })
+
+  it("bloquea el selector del reporte que se está actualizando", () => {
+    render(
+      <ReportsTable
+        reports={[pendingReport]}
+        updatingReportId="REP-TEST"
         onStatusChange={vi.fn()}
       />,
     )

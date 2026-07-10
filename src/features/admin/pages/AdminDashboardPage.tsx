@@ -19,9 +19,9 @@ import { Badge } from "@/shared/components/ui/badge"
 import { Button } from "@/shared/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card"
 import ThemeToggle from "@/shared/theme/components/ThemeToggle"
-import { mockReports } from "../data/reports.mock"
 import { ReportsTable } from "../components/ReportsTable"
-import type { ReportStatus } from "../types/report.types"
+import { adminReportsService } from "../services/admin-reports.service"
+import type { Report, ReportStatus } from "../types/report.types"
 import { canTransitionReportStatus } from "../utils/report-status"
 
 const navItems = [
@@ -34,10 +34,44 @@ const navItems = [
 
 export default function AdminDashboardPage() {
   useDocumentTitle("Dashboard administrativo")
-  const [reports, setReports] = useState(() => mockReports)
+  const [reports, setReports] = useState<Report[]>([])
+  const [isLoadingReports, setIsLoadingReports] = useState(true)
+  const [reportsError, setReportsError] = useState<string | null>(null)
+  const [updatingReportId, setUpdatingReportId] = useState<string | null>(null)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>()
   const profilePhotoInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadReports() {
+      setIsLoadingReports(true)
+      setReportsError(null)
+
+      try {
+        const apiReports = await adminReportsService.getReports()
+
+        if (isMounted) {
+          setReports(apiReports)
+        }
+      } catch {
+        if (isMounted) {
+          setReportsError("No se pudieron cargar los reportes.")
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingReports(false)
+        }
+      }
+    }
+
+    void loadReports()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -51,15 +85,42 @@ export default function AdminDashboardPage() {
     (report) => report.status === "Pendiente",
   ).length
 
-  const handleStatusChange = (reportId: string, nextStatus: ReportStatus) => {
+  const handleStatusChange = async (reportId: string, nextStatus: ReportStatus) => {
+    const previousReports = reports
+    const currentReport = reports.find((report) => report.id === reportId)
+
+    if (
+      !currentReport ||
+      !canTransitionReportStatus(currentReport.status, nextStatus)
+    ) {
+      return
+    }
+
+    setReportsError(null)
+    setUpdatingReportId(reportId)
     setReports((currentReports) =>
       currentReports.map((report) =>
-        report.id === reportId &&
-        canTransitionReportStatus(report.status, nextStatus)
-          ? { ...report, status: nextStatus }
-          : report,
+        report.id === reportId ? { ...report, status: nextStatus } : report,
       ),
     )
+
+    try {
+      const updatedReport = await adminReportsService.updateStatus(
+        reportId,
+        nextStatus,
+      )
+
+      setReports((currentReports) =>
+        currentReports.map((report) =>
+          report.id === reportId ? updatedReport : report,
+        ),
+      )
+    } catch {
+      setReports(previousReports)
+      setReportsError("No se pudo actualizar el estado del reporte.")
+    } finally {
+      setUpdatingReportId(null)
+    }
   }
 
   const handleProfilePhotoChange: ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -113,13 +174,13 @@ export default function AdminDashboardPage() {
 
             return path ? (
               <Link
-              key={label}
-              aria-current={active ? "page" : undefined}
-              className={className}
-              to={path}
-            >
-              <Icon aria-hidden="true" className="size-5" />
-              {label}
+                key={label}
+                aria-current={active ? "page" : undefined}
+                className={className}
+                to={path}
+              >
+                <Icon aria-hidden="true" className="size-5" />
+                {label}
               </Link>
             ) : (
               <button key={label} className={className} type="button">
@@ -247,18 +308,36 @@ export default function AdminDashboardPage() {
                   Todos los reportes
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {reports.length} reportes registrados
+                  {isLoadingReports
+                    ? "Cargando reportes..."
+                    : `${reports.length} reportes registrados`}
                 </p>
               </div>
               <Badge variant="outline" className="border-border text-muted-foreground">
-                Datos mock
+                API backend
               </Badge>
             </CardHeader>
             <CardContent className="p-0">
-              <ReportsTable
-                reports={reports}
-                onStatusChange={handleStatusChange}
-              />
+              {reportsError && (
+                <div
+                  className="border-b border-destructive/20 bg-destructive/10 px-5 py-3 text-sm font-medium text-destructive"
+                  role="alert"
+                >
+                  {reportsError}
+                </div>
+              )}
+
+              {isLoadingReports ? (
+                <div className="p-6 text-sm text-muted-foreground">
+                  Cargando reportes...
+                </div>
+              ) : (
+                <ReportsTable
+                  reports={reports}
+                  updatingReportId={updatingReportId}
+                  onStatusChange={handleStatusChange}
+                />
+              )}
             </CardContent>
           </Card>
         </main>
