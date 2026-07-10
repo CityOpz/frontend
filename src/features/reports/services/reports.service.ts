@@ -70,7 +70,14 @@ function toReportFormData(payload: CreateReportPayload | UpdateReportPayload) {
 }
 
 export function mapApiReportToMapReport(report: ApiReport): MapReport | null {
-  if (report.latitude === undefined || report.longitude === undefined) {
+  const { latitude, longitude } = report
+
+  if (
+    typeof latitude !== "number" ||
+    typeof longitude !== "number" ||
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude)
+  ) {
     return null
   }
 
@@ -81,7 +88,7 @@ export function mapApiReportToMapReport(report: ApiReport): MapReport | null {
     title: report.title,
     category: categoryLabels.get(categoryKey) ?? report.category?.name ?? "Sin categoría",
     status: statusLabels[report.status],
-    coordinates: [report.latitude, report.longitude],
+    coordinates: [latitude, longitude],
   }
 }
 
@@ -91,7 +98,7 @@ export const reportsService = {
       headers: { "Content-Type": "multipart/form-data" },
     }),
 
-  list: () => api.get<PaginatedReportsResponse>("/reports/all/"),
+  list: (url = "/reports/all/") => api.get<PaginatedReportsResponse>(url),
 
   detail: (id: number) => api.get<ApiReport>(`/reports/${id}/`),
 
@@ -117,13 +124,30 @@ export const reportsService = {
   },
 
   async listMapReports() {
-    const response = await reportsService.list()
-    const details = await Promise.all(
-      response.data.results.map((report) => reportsService.detail(report.id)),
+    const reports: ApiReport[] = []
+    let nextPage: string | null = "/reports/all/"
+
+    while (nextPage) {
+      const response = await reportsService.list(nextPage)
+      reports.push(...response.data.results)
+      nextPage = response.data.next
+    }
+
+    const mapReports = await Promise.allSettled(
+      reports.map(async (report) => {
+        const mapReport = mapApiReportToMapReport(report)
+
+        if (mapReport) {
+          return mapReport
+        }
+
+        const detail = await reportsService.detail(report.id)
+        return mapApiReportToMapReport(detail.data)
+      }),
     )
 
-    return details
-      .map(({ data }) => mapApiReportToMapReport(data))
-      .filter((report): report is MapReport => report !== null)
+    return mapReports.flatMap((result) =>
+      result.status === "fulfilled" && result.value ? [result.value] : [],
+    )
   },
 }
