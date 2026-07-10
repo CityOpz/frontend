@@ -117,7 +117,7 @@ describe("reportsService", () => {
       latitude: 3.1,
       longitude: -76.1,
       photo,
-    } as any)
+    } as unknown as Parameters<typeof reportsService.create>[0])
 
     expect(api.post).toHaveBeenCalledTimes(1)
     const [url, formData, config] = vi.mocked(api.post).mock.calls[0]
@@ -138,7 +138,7 @@ describe("reportsService", () => {
 
     await reportsService.create({
       categoryId: 2,
-    } as any)
+    } as unknown as Parameters<typeof reportsService.create>[0])
 
     const [, formData] = vi.mocked(api.post).mock.calls[0]
     const fd = formData as FormData
@@ -153,7 +153,7 @@ describe("reportsService", () => {
 
     await reportsService.update(9, {
       category: "Green Areas",
-    } as any)
+    } as unknown as Parameters<typeof reportsService.update>[1])
 
     const [url, formData, config] = vi.mocked(api.patch).mock.calls[0]
     expect(url).toBe("/reports/9/update/")

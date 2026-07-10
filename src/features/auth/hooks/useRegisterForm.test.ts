@@ -40,6 +40,30 @@ vi.mock("../utils/validators", () => ({
   validateLastName: vi.fn(),
 }))
 
+interface AuthStoreState {
+  access: string | null
+  refresh: string | null
+  isAuthenticated: boolean
+  initialized: boolean
+  setTokens: (access: string, refresh: string) => void
+  setAccess: (access: string) => void
+  logout: () => void
+}
+
+const fakeAuthState: AuthStoreState = {
+  access: null,
+  refresh: null,
+  isAuthenticated: false,
+  initialized: false,
+  setTokens: setTokensMock,
+  setAccess: vi.fn(),
+  logout: vi.fn(),
+}
+
+function selectFromAuthStore<T>(selector: (state: AuthStoreState) => T): T {
+  return selector(fakeAuthState)
+}
+
 function buildAxiosError(data?: Record<string, unknown>, withResponse = true): AxiosError {
   return {
     isAxiosError: true,
@@ -69,9 +93,7 @@ function fillValidForm(result: ReturnType<typeof renderHook<ReturnType<typeof us
 describe("useRegisterForm", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(useAuthStore).mockImplementation((selector: any) =>
-      selector({ setTokens: setTokensMock }),
-    )
+    vi.mocked(useAuthStore).mockImplementation(selectFromAuthStore as typeof useAuthStore)
     vi.mocked(validateFirstName).mockReturnValue({ valid: true })
     vi.mocked(validateLastName).mockReturnValue({ valid: true })
     vi.mocked(validateUsername).mockReturnValue({ valid: true })
@@ -183,10 +205,13 @@ describe("useRegisterForm", () => {
       const { result } = renderHook(() => useRegisterForm())
       let isValid: boolean | undefined
       act(() => {
-        isValid = result.current.validateField("campoDesconocido" as any, "cualquier valor")
+        isValid = result.current.validateField(
+          "campoDesconocido" as unknown as Parameters<typeof result.current.validateField>[0],
+          "cualquier valor",
+        )
       })
       expect(isValid).toBe(true)
-      expect((result.current.errors as any).campoDesconocido).toBeUndefined()
+      expect((result.current.errors as Record<string, unknown>).campoDesconocido).toBeUndefined()
     })
   })
 
@@ -213,10 +238,12 @@ describe("useRegisterForm", () => {
     })
 
     it("registro exitoso: registra, hace login y navega", async () => {
-      vi.mocked(authService.register).mockResolvedValue({} as any)
+      vi.mocked(authService.register).mockResolvedValue(
+        {} as Awaited<ReturnType<typeof authService.register>>,
+      )
       vi.mocked(authService.login).mockResolvedValue({
         data: { access: "tok-a", refresh: "tok-r" },
-      } as any)
+      } as Awaited<ReturnType<typeof authService.login>>)
 
       const { result } = renderHook(() => useRegisterForm())
       fillValidForm(result)

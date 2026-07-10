@@ -23,6 +23,30 @@ vi.mock("../store/auth.store", () => ({
 
 const setTokensMock = vi.fn()
 
+interface AuthStoreState {
+  access: string | null
+  refresh: string | null
+  isAuthenticated: boolean
+  initialized: boolean
+  setTokens: (access: string, refresh: string) => void
+  setAccess: (access: string) => void
+  logout: () => void
+}
+
+const fakeAuthState: AuthStoreState = {
+  access: null,
+  refresh: null,
+  isAuthenticated: false,
+  initialized: false,
+  setTokens: setTokensMock,
+  setAccess: vi.fn(),
+  logout: vi.fn(),
+}
+
+function selectFromAuthStore<T>(selector: (state: AuthStoreState) => T): T {
+  return selector(fakeAuthState)
+}
+
 function buildAxiosError(data?: Record<string, unknown>, withResponse = true): AxiosError {
   return {
     isAxiosError: true,
@@ -40,9 +64,7 @@ function buildFormEvent() {
 describe("useLoginForm", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(useAuthStore).mockImplementation((selector: any) =>
-      selector({ setTokens: setTokensMock }),
-    )
+    vi.mocked(useAuthStore).mockImplementation(selectFromAuthStore as typeof useAuthStore)
   })
 
   it("inicializa con form vacío, sin loading ni error", () => {
@@ -123,7 +145,7 @@ describe("useLoginForm", () => {
   it("login exitoso: guarda tokens y navega a /dashboard", async () => {
     vi.mocked(authService.login).mockResolvedValue({
       data: { access: "access-token", refresh: "refresh-token" },
-    } as any)
+    } as Awaited<ReturnType<typeof authService.login>>)
 
     const { result } = renderHook(() => useLoginForm())
     act(() => {
