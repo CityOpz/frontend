@@ -1,19 +1,19 @@
 import { api } from "@/shared/lib/api/axios"
+import type {
+  AuthTokens,
+  RegisterPayload,
+  RegisterResponse,
+} from "../types/auth.types"
 
 export const authService = {
   login: (data: { username: string; password: string }) =>
-    api.post("/token/", data),
+    api.post<AuthTokens>("/token/", data),
 
-  register: (data: {
-    username: string
-    email: string
-    first_name: string
-    last_name: string
-    password: string
-  }) => api.post("/users/register/", data),
+  register: (data: RegisterPayload) =>
+    api.post<RegisterResponse>("/users/register/", data),
 
   refresh: (refresh: string) =>
-    api.post("/token/refresh/", { refresh }),
+    api.post<Pick<AuthTokens, "access">>("/token/refresh/", { refresh }),
 
   verify: (token: string) =>
     api.post("/token/verify/", { token }),

@@ -13,6 +13,7 @@ import { Input } from "@/shared/components/ui/input"
 import { Checkbox } from "@/shared/components/ui/checkbox"
 import { PasswordInput } from "./PasswordInput"
 import { PasswordRequirements } from "./PasswordRequirements"
+import { Link } from "react-router"
 
 import { useRegisterForm } from "../hooks/useRegisterForm"
 
@@ -21,6 +22,7 @@ export function RegisterForm() {
     form,
     errors,
     termsError,
+    submitError,
     loading,
     submit,
     update,
@@ -52,6 +54,12 @@ export function RegisterForm() {
         </header>
 
         <form className="flex flex-col gap-y-4" onSubmit={submit}>
+          {submitError && (
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">
+              {submitError}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               id="firstName"
@@ -178,9 +186,9 @@ export function RegisterForm() {
         <footer className="pt-4">
           <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
-            <a className="text-primary font-bold hover:underline ml-1" href="/login">
+            <Link className="text-primary font-bold hover:underline ml-1" to="/login">
               Login
-            </a>
+            </Link>
           </p>
         </footer>
       </div>

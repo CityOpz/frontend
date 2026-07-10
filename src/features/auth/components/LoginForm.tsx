@@ -77,12 +77,12 @@ export function LoginForm() {
         <div className="mt-12 text-center lg:text-left">
           <p className="text-sm text-outline">
             New to CityOps?{" "}
-            <a
+            <Link
               className="text-primary font-bold hover:underline"
-              href="/register"
+              to="/register"
             >
               Create your account
-            </a>
+            </Link>
           </p>
         </div>
       </div>
