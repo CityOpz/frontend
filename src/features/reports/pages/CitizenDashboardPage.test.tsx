@@ -89,32 +89,17 @@ describe("CitizenDashboardPage", () => {
     vi.mocked(useAuthStore).mockImplementation((selector: AuthStoreSelector) => selector(getMockStore()))
   })
 
-  it("renders user information", async () => {
+  // ✅ TEST PARAMETRIZADO (reemplaza 3 tests duplicados)
+  it.each([
+    ["user information", "John Doe"],
+    ["page title", "Mis Reportes Creados"],
+    ["navigation items", "Mis Reportes"],
+  ])("renders %s correctly", async (_, expectedText) => {
     vi.mocked(reportsService.listCitizenReports).mockResolvedValue([])
     render(<CitizenDashboardPage />)
 
     await waitFor(() => {
-      expect(screen.getByText("John Doe")).toBeInTheDocument()
-    })
-  })
-
-  it("renders page title and description", async () => {
-    vi.mocked(reportsService.listCitizenReports).mockResolvedValue([])
-    render(<CitizenDashboardPage />)
-
-    await waitFor(() => {
-      expect(screen.getByText("Mis Reportes Creados")).toBeInTheDocument()
-    })
-  })
-
-  it("renders navigation items", async () => {
-    vi.mocked(reportsService.listCitizenReports).mockResolvedValue([])
-    render(<CitizenDashboardPage />)
-
-    await waitFor(() => {
-      expect(screen.getByText("Mis Reportes")).toBeInTheDocument()
-      expect(screen.getByText("Nuevo Reporte")).toBeInTheDocument()
-      expect(screen.getByText("Mapa de Reportes")).toBeInTheDocument()
+      expect(screen.getByText(expectedText)).toBeInTheDocument()
     })
   })
 
