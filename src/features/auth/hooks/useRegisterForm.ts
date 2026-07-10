@@ -12,6 +12,7 @@ import {
   validateFirstName,
   validateLastName,
 } from "../utils/validators"
+import type { UserInfo } from "../types/auth.types"
 
 type BackendError = Partial<
   Record<keyof FormErrors | "first_name" | "last_name" | "detail" | "non_field_errors", string | string[]>
@@ -200,7 +201,7 @@ function mapBackendErrors(backendErrors: BackendError): Partial<FormErrors> {
 
 async function registerAndLogin(
   form: RegisterFormState,
-  setTokens: (access: string, refresh: string, user?: any) => void,
+  setTokens: (access: string, refresh: string, user?: UserInfo) => void,  // ✅ UserInfo
 ) {
   await authService.register({
     username: form.username,
