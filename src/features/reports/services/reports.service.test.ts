@@ -7,7 +7,6 @@ import {
 } from "./reports.service"
 import type { ApiReport } from "../types/report-api.types"
 
-// Mockeamos el cliente axios compartido para no golpear la red real.
 vi.mock("@/shared/lib/api/axios", () => ({
   api: {
     get: vi.fn(),
@@ -51,8 +50,6 @@ describe("mapApiReportToMapReport", () => {
     const report = buildApiReport({
       category: { id: 2, name: "Unknown Backend Label" },
     })
-    // categoryKey = report.category?.name ?? ... -> "Unknown Backend Label" no está en el map,
-    // por lo que cae al fallback report.category?.name
     const result = mapApiReportToMapReport(report)
     expect(result?.category).toBe("Unknown Backend Label")
   })
@@ -190,6 +187,27 @@ describe("reportsService", () => {
     })
   })
 
+  it("listCitizenReports llama a GET /reports/all/?my_reports=true", async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: { results: [] } })
+    await reportsService.listCitizenReports()
+    expect(api.get).toHaveBeenCalledWith("/reports/all/?my_reports=true")
+  })
+
+  it("maneja error en listCitizenReports", async () => {
+    vi.mocked(api.get).mockRejectedValue(new Error("Network error"))
+    await expect(reportsService.listCitizenReports()).rejects.toThrow("Network error")
+  })
+
+  it("maneja error en detail", async () => {
+    vi.mocked(api.get).mockRejectedValue(new Error("Not found"))
+    await expect(reportsService.detail(999)).rejects.toThrow("Not found")
+  })
+
+  it("maneja error en delete", async () => {
+    vi.mocked(api.delete).mockRejectedValue(new Error("Forbidden"))
+    await expect(reportsService.delete(1)).rejects.toThrow("Forbidden")
+  })
+
   describe("listMapReports", () => {
     it("obtiene la lista, pide el detalle de cada reporte y descarta los que retornan null", async () => {
       vi.mocked(api.get).mockImplementation((url: string) => {
@@ -202,7 +220,6 @@ describe("reportsService", () => {
           return Promise.resolve({ data: buildApiReport({ id: 1 }) })
         }
         if (url === "/reports/2/") {
-          // sin coordenadas -> mapApiReportToMapReport retorna null
           return Promise.resolve({
             data: buildApiReport({ id: 2, latitude: undefined, longitude: undefined }),
           })
