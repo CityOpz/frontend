@@ -12,6 +12,7 @@ import {
   validateLastName,
 } from "../utils/validators"
 import type { AxiosError } from "axios"
+import type { UserInfo } from "../types/auth.types"
 
 const navigateMock = vi.fn()
 const setTokensMock = vi.fn()
@@ -40,12 +41,13 @@ vi.mock("../utils/validators", () => ({
   validateLastName: vi.fn(),
 }))
 
+
 interface AuthStoreState {
   access: string | null
   refresh: string | null
   isAuthenticated: boolean
   initialized: boolean
-  setTokens: (access: string, refresh: string, user?: any) => void
+  setTokens: (access: string, refresh: string, user?: UserInfo) => void
   setAccess: (access: string) => void
   logout: () => void
 }

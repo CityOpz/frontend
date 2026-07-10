@@ -4,6 +4,7 @@ import { useLoginForm } from "./useLoginForm"
 import { authService } from "../services/auth.service"
 import { useAuthStore } from "../store/auth.store"
 import type { AxiosError } from "axios"
+import type { UserInfo } from "../types/auth.types"
 
 const navigateMock = vi.fn()
 
@@ -23,12 +24,13 @@ vi.mock("../store/auth.store", () => ({
 
 const setTokensMock = vi.fn()
 
+
 interface AuthStoreState {
   access: string | null
   refresh: string | null
   isAuthenticated: boolean
   initialized: boolean
-  setTokens: (access: string, refresh: string, user?: any) => void
+  setTokens: (access: string, refresh: string, user?: UserInfo) => void  // ✅ UserInfo
   setAccess: (access: string) => void
   logout: () => void
 }

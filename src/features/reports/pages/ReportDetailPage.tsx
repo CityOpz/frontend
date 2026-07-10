@@ -16,6 +16,7 @@ import { MapContainer, Marker, TileLayer } from "react-leaflet"
 import markerIconUrl from "leaflet/dist/images/marker-icon.png"
 import markerIconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png"
 import markerShadowUrl from "leaflet/dist/images/marker-shadow.png"
+import type { AxiosError } from "axios"
 
 import useDocumentTitle from "@/shared/hooks/useDocumentTitle"
 import { Badge } from "@/shared/components/ui/badge"
@@ -79,9 +80,10 @@ export default function ReportDetailPage() {
         if (isMounted) {
           setReport(response.data)
         }
-      } catch (err: any) {
+      } catch (err) {
         if (isMounted) {
-          if (err.response?.status === 404) {
+          const axiosError = err as AxiosError
+          if (axiosError.response?.status === 404) {
             setError("El reporte solicitado no existe o no tienes permisos para verlo.")
           } else {
             setError("Ocurrió un error al cargar el detalle del reporte.")
@@ -277,7 +279,7 @@ export default function ReportDetailPage() {
                     </span>
                   </div>
                 </CardHeader>
-                <CardContent className="p-0 h-[320px] relative z-0">
+                <CardContent className="p-0 h-80 relative z-0">
                   <MapContainer
                     center={reportPosition}
                     className="h-full w-full"
@@ -309,10 +311,10 @@ export default function ReportDetailPage() {
                     />
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center flex flex-col items-center justify-center min-h-[220px]">
+                  <div className="rounded-xl border border-dashed border-border bg-muted/30 p-8 text-center flex flex-col items-center justify-center min-h-55">
                     <ImageIcon className="size-10 text-muted-foreground/60 mb-3" />
                     <p className="text-sm font-semibold text-muted-foreground">Sin foto adjunta</p>
-                    <p className="text-xs text-muted-foreground/80 mt-1 max-w-[180px]">El ciudadano no adjuntó una imagen de evidencia para este reporte.</p>
+                    <p className="text-xs text-muted-foreground/80 mt-1 max-w-45">El ciudadano no adjuntó una imagen de evidencia para este reporte.</p>
                   </div>
                 )}
               </CardContent>
