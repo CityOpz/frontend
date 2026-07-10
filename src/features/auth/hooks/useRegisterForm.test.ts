@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { renderHook, act } from "@testing-library/react"
+import { createElement, type ReactNode } from "react"
+import { MemoryRouter } from "react-router"
 import type { AxiosResponse, AxiosError } from "axios"
 import { useLoginForm } from "./useLoginForm"
 import { authService } from "../services/auth.service"
@@ -22,6 +24,9 @@ interface ErrorResponse {
 }
 
 describe("useLoginForm", () => {
+  const wrapper = ({ children }: { readonly children: ReactNode }) =>
+    createElement(MemoryRouter, null, children)
+
   beforeEach(() => {
     vi.clearAllMocks()
     useAuthStore.setState({
@@ -32,7 +37,7 @@ describe("useLoginForm", () => {
   })
 
   it("estado inicial es correcto", () => {
-    const { result } = renderHook(() => useLoginForm())
+    const { result } = renderHook(() => useLoginForm(), { wrapper })
     
     expect(result.current.loading).toBe(false)
     expect(result.current.error).toBeNull()
@@ -41,7 +46,7 @@ describe("useLoginForm", () => {
   })
 
   it("update actualiza el campo del formulario", () => {
-    const { result } = renderHook(() => useLoginForm())
+    const { result } = renderHook(() => useLoginForm(), { wrapper })
     
     act(() => {
       result.current.update("username")("testuser")
@@ -51,7 +56,7 @@ describe("useLoginForm", () => {
   })
 
   it("submit falla si faltan campos", async () => {
-    const { result } = renderHook(() => useLoginForm())
+    const { result } = renderHook(() => useLoginForm(), { wrapper })
     
     const fakeEvent = { preventDefault: vi.fn() } as unknown as React.FormEvent<HTMLFormElement>
     
@@ -70,17 +75,11 @@ describe("useLoginForm", () => {
     
     mockLogin.mockResolvedValue(mockResponse)
 
-    const { result } = renderHook(() => useLoginForm())
+    const { result } = renderHook(() => useLoginForm(), { wrapper })
     
     await act(async () => {
       result.current.update("username")("testuser")
       result.current.update("password")("password123")
-    })
-
-    const originalLocation = globalThis.location
-    Object.defineProperty(globalThis, "location", {
-      value: { href: "" },
-      writable: true,
     })
 
     const fakeEvent = { preventDefault: vi.fn() } as unknown as React.FormEvent<HTMLFormElement>
@@ -97,10 +96,6 @@ describe("useLoginForm", () => {
     expect(useAuthStore.getState().access).toBe("access123")
     expect(useAuthStore.getState().isAuthenticated).toBe(true)
 
-    Object.defineProperty(globalThis, "location", {
-      value: originalLocation,
-      writable: true,
-    })
   })
 
   it("submit con error muestra mensaje", async () => {
@@ -111,7 +106,7 @@ describe("useLoginForm", () => {
     
     mockLogin.mockRejectedValue(mockError)
 
-    const { result } = renderHook(() => useLoginForm())
+    const { result } = renderHook(() => useLoginForm(), { wrapper })
     
     await act(async () => {
       result.current.update("username")("testuser")
