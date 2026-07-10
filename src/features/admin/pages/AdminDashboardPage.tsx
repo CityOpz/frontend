@@ -9,7 +9,6 @@ import {
   Users,
 } from "lucide-react"
 import { useEffect, useState } from "react"
-import { Link } from "react-router"
 import useDocumentTitle from "@/shared/hooks/useDocumentTitle"
 import { Badge } from "@/shared/components/ui/badge"
 import { Button } from "@/shared/components/ui/button"
@@ -107,31 +106,6 @@ export default function AdminDashboardPage() {
       setReportsError("No se pudo actualizar el estado del reporte.")
     } finally {
       setUpdatingReportId(null)
-    }
-  }
-
-  const handleProfilePhotoChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const file = event.target.files?.[0]
-
-    if (!file) {
-      return
-    }
-
-    setProfilePhotoUrl(URL.createObjectURL(file))
-    setIsProfileMenuOpen(false)
-    event.target.value = ""
-  }
-
-  const openProfilePhotoPicker = () => {
-    profilePhotoInputRef.current?.click()
-  }
-
-  const removeProfilePhoto = () => {
-    setProfilePhotoUrl(undefined)
-    setIsProfileMenuOpen(false)
-
-    if (profilePhotoInputRef.current) {
-      profilePhotoInputRef.current.value = ""
     }
   }
 
