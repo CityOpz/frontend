@@ -1,4 +1,3 @@
-// src/features/auth/components/RegisterForm.test.tsx
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { MemoryRouter } from "react-router"
@@ -52,12 +51,13 @@ describe("RegisterForm", () => {
   it("renderiza todos los campos del formulario", () => {
     renderWithRouter(<RegisterForm />)
     
-    expect(screen.getByLabelText(/nombre/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/apellido/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/nombre de usuario/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/correo electrónico/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/^contraseña$/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/confirmar contraseña/i)).toBeInTheDocument()
+    // ✅ Usar exact: true para evitar conflictos entre "Nombre" y "Nombre de usuario"
+    expect(screen.getByLabelText("Nombre", { exact: true })).toBeInTheDocument()
+    expect(screen.getByLabelText("Apellido")).toBeInTheDocument()
+    expect(screen.getByLabelText("Nombre de usuario")).toBeInTheDocument()
+    expect(screen.getByLabelText("Correo electrónico")).toBeInTheDocument()
+    expect(screen.getByLabelText("Contraseña", { exact: true })).toBeInTheDocument()
+    expect(screen.getByLabelText("Confirmar contraseña")).toBeInTheDocument()
   })
 
   it("renderiza el checkbox de términos", () => {
@@ -156,7 +156,8 @@ describe("RegisterForm", () => {
   it("llama a update cuando se cambia firstName", () => {
     renderWithRouter(<RegisterForm />)
     
-    const firstNameInput = screen.getByLabelText(/nombre/i)
+    // ✅ Usar exact: true para seleccionar solo "Nombre" y no "Nombre de usuario"
+    const firstNameInput = screen.getByLabelText("Nombre", { exact: true })
     fireEvent.change(firstNameInput, { target: { value: "John" } })
     
     expect(mockUpdate).toHaveBeenCalledWith("firstName")
@@ -165,7 +166,7 @@ describe("RegisterForm", () => {
   it("llama a update cuando se cambia lastName", () => {
     renderWithRouter(<RegisterForm />)
     
-    const lastNameInput = screen.getByLabelText(/apellido/i)
+    const lastNameInput = screen.getByLabelText("Apellido")
     fireEvent.change(lastNameInput, { target: { value: "Doe" } })
     
     expect(mockUpdate).toHaveBeenCalledWith("lastName")
@@ -174,7 +175,7 @@ describe("RegisterForm", () => {
   it("llama a update cuando se cambia username", () => {
     renderWithRouter(<RegisterForm />)
     
-    const usernameInput = screen.getByLabelText(/nombre de usuario/i)
+    const usernameInput = screen.getByLabelText("Nombre de usuario")
     fireEvent.change(usernameInput, { target: { value: "johndoe" } })
     
     expect(mockUpdate).toHaveBeenCalledWith("username")
@@ -183,7 +184,7 @@ describe("RegisterForm", () => {
   it("llama a update cuando se cambia email", () => {
     renderWithRouter(<RegisterForm />)
     
-    const emailInput = screen.getByLabelText(/correo electrónico/i)
+    const emailInput = screen.getByLabelText("Correo electrónico")
     fireEvent.change(emailInput, { target: { value: "john@example.com" } })
     
     expect(mockUpdate).toHaveBeenCalledWith("email")
@@ -200,7 +201,7 @@ describe("RegisterForm", () => {
     
     renderWithRouter(<RegisterForm />)
     
-    const emailInput = screen.getByLabelText(/correo electrónico/i)
+    const emailInput = screen.getByLabelText("Correo electrónico")
     fireEvent.change(emailInput, { target: { value: "TEST@EMAIL.COM" } })
     
     expect(mockUpdate).toHaveBeenCalledWith("email")
@@ -210,7 +211,8 @@ describe("RegisterForm", () => {
   it("llama a validateField cuando se hace blur en firstName", () => {
     renderWithRouter(<RegisterForm />)
     
-    const firstNameInput = screen.getByLabelText(/nombre/i)
+    // ✅ Usar exact: true para seleccionar solo "Nombre"
+    const firstNameInput = screen.getByLabelText("Nombre", { exact: true })
     fireEvent.blur(firstNameInput)
     
     expect(mockValidateField).toHaveBeenCalledWith("firstName", "")
@@ -219,7 +221,7 @@ describe("RegisterForm", () => {
   it("llama a validateField cuando se hace blur en email", () => {
     renderWithRouter(<RegisterForm />)
     
-    const emailInput = screen.getByLabelText(/correo electrónico/i)
+    const emailInput = screen.getByLabelText("Correo electrónico")
     fireEvent.blur(emailInput)
     
     expect(mockValidateField).toHaveBeenCalledWith("email", "")
@@ -254,50 +256,50 @@ describe("RegisterForm", () => {
   it("muestra los requisitos de password cuando el campo está enfocado", () => {
     renderWithRouter(<RegisterForm />)
     
-    const passwordInput = screen.getByLabelText(/^contraseña$/i)
+    const passwordInput = screen.getByLabelText("Contraseña", { exact: true })
     fireEvent.focus(passwordInput)
     
-    expect(screen.getByText("De 8 a 12 caracteres")).toBeInTheDocument()
-    expect(screen.getByText("Al menos 1 letra mayúscula")).toBeInTheDocument()
-    expect(screen.getByText("Al menos 1 letra minúscula")).toBeInTheDocument()
-    expect(screen.getByText("Al menos 1 número")).toBeInTheDocument()
-    expect(screen.getByText("Las contraseñas coinciden")).toBeInTheDocument()
+    expect(screen.getByText("8-12 characters")).toBeInTheDocument()
+    expect(screen.getByText("At least 1 uppercase letter")).toBeInTheDocument()
+    expect(screen.getByText("At least 1 lowercase letter")).toBeInTheDocument()
+    expect(screen.getByText("At least 1 number")).toBeInTheDocument()
+    expect(screen.getByText("Passwords match")).toBeInTheDocument()
   })
 
   it("oculta los requisitos de password cuando el campo pierde el foco", () => {
     renderWithRouter(<RegisterForm />)
     
-    const passwordInput = screen.getByLabelText(/^contraseña$/i)
+    const passwordInput = screen.getByLabelText("Contraseña", { exact: true })
     fireEvent.focus(passwordInput)
     fireEvent.blur(passwordInput)
     
-    expect(screen.queryByText("De 8 a 12 caracteres")).not.toBeInTheDocument()
+    expect(screen.queryByText(/8.*12.*caracter/i)).not.toBeInTheDocument()
   })
 
   it("llama a update cuando se cambia password", () => {
     renderWithRouter(<RegisterForm />)
-    const passwordInput = screen.getByLabelText(/^contraseña$/i)
+    const passwordInput = screen.getByLabelText("Contraseña", { exact: true })
     fireEvent.change(passwordInput, { target: { value: "Password1" } })
     expect(mockUpdate).toHaveBeenCalledWith("password")
   })
 
   it("llama a update cuando se cambia confirmPassword", () => {
     renderWithRouter(<RegisterForm />)
-    const confirmPasswordInput = screen.getByLabelText(/confirmar contraseña/i)
+    const confirmPasswordInput = screen.getByLabelText("Confirmar contraseña")
     fireEvent.change(confirmPasswordInput, { target: { value: "Password1" } })
     expect(mockUpdate).toHaveBeenCalledWith("confirmPassword")
   })
 
   it("llama a validateField cuando se hace blur en password", () => {
     renderWithRouter(<RegisterForm />)
-    const passwordInput = screen.getByLabelText(/^contraseña$/i)
+    const passwordInput = screen.getByLabelText("Contraseña", { exact: true })
     fireEvent.blur(passwordInput)
     expect(mockValidateField).toHaveBeenCalledWith("password", "")
   })
 
   it("llama a validateField cuando se hace blur en confirmPassword", () => {
     renderWithRouter(<RegisterForm />)
-    const confirmPasswordInput = screen.getByLabelText(/confirmar contraseña/i)
+    const confirmPasswordInput = screen.getByLabelText("Confirmar contraseña")
     fireEvent.blur(confirmPasswordInput)
     expect(mockValidateField).toHaveBeenCalledWith("confirmPassword", "")
   })
