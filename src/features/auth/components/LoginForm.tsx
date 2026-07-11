@@ -20,7 +20,7 @@ export function LoginForm() {
               City<span className="text-primary">Ops</span>
             </span>
             <span className="block text-[10px] text-outline tracking-[0.2em] uppercase font-bold">
-              GovTech Portal
+              Portal GovTech
             </span>
           </div>
       </Link>
@@ -29,10 +29,10 @@ export function LoginForm() {
       <div className="max-w-100 w-full">
         <header className="mb-12">
           <h1 className="text-4xl font-extrabold text-foreground mb-2">
-            Welcome Back
+            Bienvenido de nuevo
           </h1>
           <p className="text-outline">
-            Identify yourself to continue to the dashboard.
+            Identifícate para continuar al panel de control.
           </p>
         </header>
 
@@ -46,7 +46,7 @@ export function LoginForm() {
           <div className="space-y-10">
             <Input
               id="username"
-              label="Username"
+              label="Nombre de usuario"
               type="text"
               value={form.username}
               onChange={(e) => update("username")(e.target.value)}
@@ -55,7 +55,7 @@ export function LoginForm() {
 
             <PasswordInput
               id="password"
-              label="Password"
+              label="Contraseña"
               value={form.password}
               onChange={(e) => update("password")(e.target.value)}
               startIcon={<LockKeyhole className="w-5 h-5" />}
@@ -70,18 +70,18 @@ export function LoginForm() {
             rightIcon={<ArrowRight className="w-5 h-5" />}
             className="rounded-sm"
           >
-            Access System
+            Acceder al Sistema
           </Button>
         </form>
 
         <div className="mt-12 text-center lg:text-left">
           <p className="text-sm text-outline">
-            New to CityOps?{" "}
+            ¿Eres nuevo en CityOps?{" "}
             <Link
               className="text-primary font-bold hover:underline"
               to="/register"
             >
-              Create your account
+              Crea tu cuenta
             </Link>
           </p>
         </div>

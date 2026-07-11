@@ -14,40 +14,40 @@ export function Hero() {
       <div className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
         <div className="lg:col-span-3 space-y-8 text-center lg:text-left">
           <Badge variant="tertiary" size="md" dot animated className="text-chart-3 bg-chart-3/15">
-            Smart City Initiative 2026
+            Iniciativa Ciudad Inteligente 2026
           </Badge>
           
           <h1 className="text-5xl md:text-[64px] leading-tight text-foreground font-extrabold tracking-tight">
-            Improve your city, <span className="text-primary">one report at a time</span>
+            Mejora tu ciudad, <span className="text-primary">un reporte a la vez</span>
           </h1>
           
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0">
-            Join thousands of proactive citizens transforming their neighborhoods. Your participation drives efficient and transparent urban infrastructure.
+            Únete a miles de ciudadanos proactivos que transforman sus vecindarios. Tu participación impulsa una infraestructura urbana eficiente y transparente.
           </p>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-12">
             <div className="text-center lg:text-left">
               <div className="text-3xl font-bold text-foreground">12.4k</div>
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Issues Resolved
+                Problemas Resueltos
               </div>
             </div>
             <div className="text-center lg:text-left">
               <div className="text-3xl font-bold text-foreground">48h</div>
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Average Response
+                Respuesta Promedio
               </div>
             </div>
             <div className="text-center lg:text-left">
               <div className="text-3xl font-bold text-foreground">92%</div>
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Satisfaction
+                Satisfacción
               </div>
             </div>
             <div className="text-center lg:text-left">
               <div className="text-3xl font-bold text-foreground">150+</div>
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Active Neighborhoods
+                Vecindarios Activos
               </div>
             </div>
           </div>

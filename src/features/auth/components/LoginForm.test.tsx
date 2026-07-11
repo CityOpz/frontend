@@ -38,8 +38,8 @@ describe("LoginForm", () => {
   it("renderiza el título y descripción", () => {
     renderWithRouter(<LoginForm />)
     
-    expect(screen.getByText("Welcome Back")).toBeInTheDocument()
-    expect(screen.getByText("Identify yourself to continue to the dashboard.")).toBeInTheDocument()
+    expect(screen.getByText("Bienvenido de nuevo")).toBeInTheDocument()
+    expect(screen.getByText("Identifícate para continuar al panel de control.")).toBeInTheDocument()
   })
 
   it("renderiza el logo de CityOps", () => {
@@ -47,28 +47,28 @@ describe("LoginForm", () => {
     
     expect(screen.getByText("City")).toBeInTheDocument()
     expect(screen.getByText("Ops")).toBeInTheDocument()
-    expect(screen.getByText("GovTech Portal")).toBeInTheDocument()
+    expect(screen.getByText("Portal GovTech")).toBeInTheDocument()
   })
 
   it("renderiza los campos de username y password", () => {
     renderWithRouter(<LoginForm />)
     
-    expect(screen.getByLabelText(/username/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/nombre de usuario/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument()
   })
 
   it("renderiza el botón de submit", () => {
     renderWithRouter(<LoginForm />)
     
-    const submitButton = screen.getByRole("button", { name: /access system/i })
+    const submitButton = screen.getByRole("button", { name: /acceder al sistema/i })
     expect(submitButton).toBeInTheDocument()
   })
 
   it("renderiza el link para crear cuenta", () => {
     renderWithRouter(<LoginForm />)
     
-    expect(screen.getByText(/new to cityops/i)).toBeInTheDocument()
-    expect(screen.getByText(/create your account/i)).toBeInTheDocument()
+    expect(screen.getByText(/nuevo en cityops/i)).toBeInTheDocument()
+    expect(screen.getByText(/crea tu cuenta/i)).toBeInTheDocument()
   })
 
   it("muestra error cuando existe", () => {
@@ -109,7 +109,7 @@ describe("LoginForm", () => {
   it("llama a update cuando se cambia el username", () => {
     renderWithRouter(<LoginForm />)
     
-    const usernameInput = screen.getByLabelText(/username/i)
+    const usernameInput = screen.getByLabelText(/nombre de usuario/i)
     fireEvent.change(usernameInput, { target: { value: "testuser" } })
     
     expect(mockUpdate).toHaveBeenCalledWith("username")
@@ -118,7 +118,7 @@ describe("LoginForm", () => {
   it("llama a submit cuando se envía el formulario", async () => {
     renderWithRouter(<LoginForm />)
     
-    const submitButton = screen.getByRole("button", { name: /access system/i })
+    const submitButton = screen.getByRole("button", { name: /acceder al sistema/i })
     const form = submitButton.closest("form")
     
     expect(form).not.toBeNull()
@@ -134,7 +134,7 @@ describe("LoginForm", () => {
 
   it("llama a update cuando se cambia el password", () => {
     renderWithRouter(<LoginForm />)
-    const passwordInput = screen.getByLabelText(/password/i)
+    const passwordInput = screen.getByLabelText(/contraseña/i)
     fireEvent.change(passwordInput, { target: { value: "password123" } })
     expect(mockUpdate).toHaveBeenCalledWith("password")
   })

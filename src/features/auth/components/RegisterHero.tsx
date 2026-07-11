@@ -26,13 +26,12 @@ export function RegisterHero() {
 
 
         <h1 className="text-5xl font-bold leading-tight text-foreground">
-          Architecting <br />
-          <span className="text-primary">Urban Intelligence</span>
+          Diseñando la <br />
+          <span className="text-primary">Inteligencia Urbana</span>
         </h1>
 
         <p className="text-lg text-muted-foreground leading-relaxed">
-          The mission control for the next generation of smart cities. Empowering
-          officials and citizens with real-time operational transparency.
+          El control de misión para la próxima generación de ciudades inteligentes. Empoderando a funcionarios y ciudadanos con transparencia operativa en tiempo real.
         </p>
 
         <div className="glass-card p-6 rounded-xl flex items-center gap-4 floating-ui">
@@ -41,10 +40,10 @@ export function RegisterHero() {
           </div>
           <div>
             <p className="text-xs text-primary uppercase tracking-widest font-semibold">
-              Active Infrastructure
+              Infraestructura Activa
             </p>
             <p className="text-xl text-foreground font-medium">
-              99.8% System Efficiency
+              99.8% Eficiencia del Sistema
             </p>
           </div>
         </div>

@@ -35,23 +35,22 @@ export function LoginHero() {
           <div className="space-y-4">
             <div className="h-1 w-12 bg-primary" />
             <h2 className="text-5xl font-extrabold text-foreground leading-tight tracking-tighter">
-              Architecting
+              Diseñando la
               <br />
-              <span className="text-primary">Urban Intelligence.</span>
+              <span className="text-primary">Inteligencia Urbana.</span>
             </h2>
           </div>
 
           <p className="text-muted-foreground text-lg font-light leading-relaxed">
-            Access the unified command interface for municipal operations and
-            citizen services.
+            Accede a la interfaz de comando unificada para operaciones municipales y servicios ciudadanos.
           </p>
 
           <div className="flex items-center gap-4 text-xs font-bold tracking-widest uppercase text-muted-foreground">
-            <span>Precision</span>
+            <span>Precisión</span>
             <span className="w-1 h-1 rounded-full bg-muted-foreground" />
-            <span>Transparency</span>
+            <span>Transparencia</span>
             <span className="w-1 h-1 rounded-full bg-muted-foreground" />
-            <span>Security</span>
+            <span>Seguridad</span>
           </div>
         </div>
       </div>
