@@ -29,14 +29,14 @@ export function AuthCard() {
           <div className="inline-flex items-center gap-2 text-chart-1">
             <Shield className="w-5 h-5" />
             <span className="text-xs font-bold uppercase tracking-wider">
-              Secure Access
+              Acceso Seguro
             </span>
           </div>
           <h3 className="text-2xl font-bold text-foreground">
-            Join CityOps
+            Únete a CityOps
           </h3>
           <p className="text-sm text-muted-foreground">
-            Start transforming your community today.
+            Comienza a transformar tu comunidad hoy.
           </p>
         </div>
         
@@ -50,7 +50,7 @@ export function AuthCard() {
             >
               <Zap className="w-4 h-4 text-chart-1" />
             </div>
-            <span className="text-foreground">Real-time reports</span>
+            <span className="text-foreground">Reportes en tiempo real</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <div 
@@ -61,7 +61,7 @@ export function AuthCard() {
             >
               <Users className="w-4 h-4 text-chart-2" />
             </div>
-            <span className="text-foreground">Active community</span>
+            <span className="text-foreground">Comunidad activa</span>
           </div>
         </div>
         
@@ -69,13 +69,13 @@ export function AuthCard() {
           <Link to="/login" className="block">
             <Button size="lg" className="w-full flex items-center justify-center gap-2">
               <LogIn className="w-4 h-4" />
-              Sign In
+              Iniciar Sesión
             </Button>
           </Link>
           <Link to="/register" className="block">
             <Button variant="outline" size="lg" className="w-full flex items-center justify-center gap-2 text-foreground">
               <UserPlus className="w-4 h-4" />
-              Create Account
+              Crear Cuenta
             </Button>
           </Link>
         </div>

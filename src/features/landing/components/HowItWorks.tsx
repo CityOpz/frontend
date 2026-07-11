@@ -7,10 +7,10 @@ export function HowItWorks() {
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-foreground mb-2">
-            Reporting is Simple
+            Reportar es Simple
           </h2>
           <p className="text-lg text-muted-foreground">
-            Three steps to connect with your local government.
+            Tres pasos para conectarte con tu gobierno local.
           </p>
         </div>
         
@@ -27,10 +27,10 @@ export function HowItWorks() {
               <div className="hidden md:block absolute top-1/2 left-full w-full h-0.5 bg-border/30 -z-10 ml-4"></div>
             </div>
             <h3 className="text-xl font-medium text-foreground mb-2">
-              1. Capture
+              1. Captura
             </h3>
             <p className="text-muted-foreground text-sm px-4">
-              Take a photo of the issue and briefly describe what is happening.
+              Toma una foto del problema y describe brevemente lo que sucede.
             </p>
           </div>
           
@@ -46,10 +46,10 @@ export function HowItWorks() {
               <div className="hidden md:block absolute top-1/2 left-full w-full h-0.5 bg-border/30 -z-10 ml-4"></div>
             </div>
             <h3 className="text-xl font-medium text-foreground mb-2">
-              2. Submit
+              2. Envía
             </h3>
             <p className="text-muted-foreground text-sm px-4">
-              Automatically confirm your location via GPS and send the report.
+              Confirma automáticamente tu ubicación a través de GPS y envía el reporte.
             </p>
           </div>
           
@@ -64,10 +64,10 @@ export function HowItWorks() {
               </div>
             </div>
             <h3 className="text-xl font-medium text-foreground mb-2">
-              3. Track
+              3. Monitorea
             </h3>
             <p className="text-muted-foreground text-sm px-4">
-              Receive real-time notifications about the progress of the repair.
+              Recibe notificaciones en tiempo real sobre el progreso de la reparación.
             </p>
           </div>
         </div>

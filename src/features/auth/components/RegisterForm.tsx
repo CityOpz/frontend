@@ -46,10 +46,10 @@ export function RegisterForm() {
 
         <header className="space-y-2">
           <h2 className="text-3xl font-bold text-foreground">
-            Create an account
+            Crear una cuenta
           </h2>
           <p className="text-sm text-muted-foreground">
-            Access the urban management suite.
+            Accede a la suite de gestión urbana.
           </p>
         </header>
 
@@ -63,7 +63,7 @@ export function RegisterForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               id="firstName"
-              label="First Name"
+              label="Nombre"
               type="text"
               placeholder="Johnathan"
               value={form.firstName}
@@ -75,7 +75,7 @@ export function RegisterForm() {
 
             <Input
               id="lastName"
-              label="Last Name"
+              label="Apellido"
               type="text"
               placeholder="Doe"
               value={form.lastName}
@@ -88,7 +88,7 @@ export function RegisterForm() {
 
           <Input
             id="username"
-            label="Username"
+            label="Nombre de usuario"
             type="text"
             placeholder="jdoe_official"
             value={form.username}
@@ -100,7 +100,7 @@ export function RegisterForm() {
 
           <Input
             id="email"
-            label="Email"
+            label="Correo electrónico"
             type="email"
             placeholder="j.doe@email.com"
             value={form.email}
@@ -113,7 +113,7 @@ export function RegisterForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <PasswordInput
               id="password"
-              label="Password"
+              label="Contraseña"
               placeholder="••••••••"
               value={form.password}
               onChange={(e) => update("password")(e.target.value)}
@@ -128,7 +128,7 @@ export function RegisterForm() {
 
             <PasswordInput
               id="confirmPassword"
-              label="Confirm Password"
+              label="Confirmar contraseña"
               placeholder="••••••••"
               value={form.confirmPassword}
               onChange={(e) => update("confirmPassword")(e.target.value)}
@@ -159,8 +159,7 @@ export function RegisterForm() {
                 htmlFor="terms"
                 className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
               >
-                I agree to the Terms of Service and Privacy Policy regarding
-                data handling.
+                Acepto los Términos de Servicio y la Política de Privacidad sobre el manejo de datos.
               </label>
             </div>
 
@@ -179,15 +178,15 @@ export function RegisterForm() {
             rightIcon={<ArrowRight className="w-5 h-5" />}
             className="mt-2"
           >
-            Create Account
+            Crear Cuenta
           </Button>
         </form>
 
         <footer className="pt-4">
           <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
+            ¿Ya tienes una cuenta?{" "}
             <Link className="text-primary font-bold hover:underline ml-1" to="/login">
-              Login
+              Iniciar Sesión
             </Link>
           </p>
         </footer>
